@@ -15,7 +15,7 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
           server: ftp.thewarriors.team
-          username: zoiyaj@zoiyaj.thewarriors.team
+          username:  zoiyaj@zoiyaj.thewarriors.team
           password: "kP+p4MR(iDXT,%sh"
 
 
