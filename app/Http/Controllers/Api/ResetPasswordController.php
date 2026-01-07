@@ -31,13 +31,13 @@ class ResetPasswordController extends Controller
 
         try {
             $email = $request->input('email');
-            $otp   = rand(1000, 9999);
+            $otp   = rand(100000, 999999);
             $user  = User::where('email', $email)->first();
 
             if ($user) {
                 try {
 
-                    Mail::to($email)->send(new OtpMail($otp, $user, 'Your OTP for Reset Password'));
+                    // Mail::to($email)->send(new OtpMail($otp, $user, 'Your OTP for Reset Password'));
 
                     $user->update([
                         'otp'            => $otp,

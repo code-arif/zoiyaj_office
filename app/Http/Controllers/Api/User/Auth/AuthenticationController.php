@@ -28,6 +28,7 @@ class AuthenticationController extends Controller
                 'first_name' => ['required', 'string', 'max:255'],
                 'last_name'  => ['required', 'string', 'max:255'],
                 'email'      => ['required', 'string', 'email', 'unique:users', 'max:255'],
+                'phone_number'      => ['required', 'string', 'unique:users', 'max:255'],
                 'password'   => ['required', 'string', 'min:8'],
             ]);
 
@@ -36,13 +37,14 @@ class AuthenticationController extends Controller
             }
 
             $validatedData = $validator->validated();
-            $otp           = rand(1000, 9999);
+            $otp           = rand(100000, 999999);
             $otpExpiresAt  = Carbon::now()->addMinutes(5);
 
             $user = User::create([
                 'first_name'      => $validatedData['first_name'],
                 'last_name'       => $validatedData['last_name'],
                 'email'           => $validatedData['email'],
+                'phone_number'           => $validatedData['phone_number'],
                 'password'        => Hash::make($validatedData['password']),
                 'otp'             => $otp,
                 'otp_expires_at'  => $otpExpiresAt,
@@ -50,7 +52,7 @@ class AuthenticationController extends Controller
             ]);
 
             // Try to send mail
-            Mail::to($user->email)->send(new RegisterOtpMail($otp, $user));
+            // Mail::to($user->email)->send(new RegisterOtpMail($otp, $user));
 
             // If everything is fine, commit
             DB::commit();
@@ -73,7 +75,7 @@ class AuthenticationController extends Controller
     {
         $validator = validator()->make($request->all(), [
             'email' => ['required', 'email', 'exists:users,email'],
-            'otp'   => ['required', 'digits:4'],
+            'otp'   => ['required', 'digits:6'],
         ]);
 
         if ($validator->fails()) {
