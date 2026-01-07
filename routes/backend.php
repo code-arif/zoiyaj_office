@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\Backend\ProductController;
 use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Web\Backend\UserListController;
 use App\Http\Controllers\Web\Backend\DashboardController;
+use App\Http\Controllers\Web\Backend\SpecialtyController;
 use App\Http\Controllers\Web\Backend\ChatManageController;
 use App\Http\Controllers\Web\Backend\CMS\BannerController;
 use App\Http\Controllers\Web\Backend\CMS\AboutUsController;
@@ -47,6 +48,17 @@ Route::middleware(['auth:web'])->group(function () {
     Route::delete('category/delete/{id}', [CategoryController::class, 'destroy'])->name('admin.category.destroy');
     Route::post('/category/status/{id}', [CategoryController::class, 'status'])->name('admin.category.status');
 });
+
+Route::middleware(['auth:web'])->group(function () {
+    Route::get('specialty', [SpecialtyController::class, 'index'])->name('admin.specialty.index');
+    Route::get('specialty/create', [SpecialtyController::class, 'create'])->name('admin.specialty.create');
+    Route::post('specialty/store', [SpecialtyController::class, 'store'])->name('admin.specialty.store');
+    Route::get('specialty/edit/{id}', [SpecialtyController::class, 'edit'])->name('admin.specialty.edit');
+    Route::post('specialty/update/{id}', [SpecialtyController::class, 'update'])->name('admin.specialty.update');
+    Route::delete('specialty/delete/{id}', [SpecialtyController::class, 'destroy'])->name('admin.specialty.destroy');
+    Route::post('/specialty/status/{id}', [SpecialtyController::class, 'status'])->name('admin.specialty.status');
+});
+
 
 Route::middleware(['auth:web'])->group(function () {
     Route::get('model', [ProductModelController::class, 'index'])->name('admin.model.index');

@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Plan;
+use App\Models\Specialty;
 use App\Models\Wishlist;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -169,6 +170,18 @@ class HomeController extends Controller
         ];
 
         return $this->success($data, 'Category list retrive successfully');
+    }
+
+
+    public function specialty_list(Request $request)
+    {
+        $specialty = Specialty::all();
+
+        if ($specialty->isEmpty()) {
+            return $this->error([], 'No Specialty found');
+        }
+
+        return $this->success($specialty, 'Specialty list retrive successfully');
     }
 
     public function plan_list(Request $request)

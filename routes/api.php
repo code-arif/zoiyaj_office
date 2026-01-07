@@ -97,6 +97,7 @@ Route::get('book/list', [HomeController::class, 'book_list']);
 Route::get('book/details/{slug}', [HomeController::class, 'book_details']);
 
 Route::get('category/list', [HomeController::class, 'category_list']);
+Route::get('specialty/list', [HomeController::class, 'specialty_list']);
 Route::get('book/review/list', [HomeController::class, 'book_review_list']);
 
 Route::get('recommended/book/list', [HomeController::class, 'recommended_book_list']);
