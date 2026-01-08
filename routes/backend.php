@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\Backend\FaqController;
 use App\Http\Controllers\Web\Backend\BookController;
+use App\Http\Controllers\Web\Backend\BrandController;
 use App\Http\Controllers\Web\Backend\PlanController;
 use App\Http\Controllers\Web\Backend\OrderController;
 use App\Http\Controllers\Web\Backend\ProductController;
@@ -57,6 +58,16 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('specialty/update/{id}', [SpecialtyController::class, 'update'])->name('admin.specialty.update');
     Route::delete('specialty/delete/{id}', [SpecialtyController::class, 'destroy'])->name('admin.specialty.destroy');
     Route::post('/specialty/status/{id}', [SpecialtyController::class, 'status'])->name('admin.specialty.status');
+});
+
+Route::middleware(['auth:web'])->group(function () {
+    Route::get('brand', [BrandController::class, 'index'])->name('admin.brand.index');
+    Route::get('brand/create', [BrandController::class, 'create'])->name('admin.brand.create');
+    Route::post('brand/store', [BrandController::class, 'store'])->name('admin.brand.store');
+    Route::get('brand/edit/{id}', [BrandController::class, 'edit'])->name('admin.brand.edit');
+    Route::post('brand/update/{id}', [BrandController::class, 'update'])->name('admin.brand.update');
+    Route::delete('brand/delete/{id}', [BrandController::class, 'destroy'])->name('admin.brand.destroy');
+    Route::post('/brand/status/{id}', [BrandController::class, 'status'])->name('admin.brand.status');
 });
 
 

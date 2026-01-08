@@ -18,7 +18,6 @@ return new class extends Migration
 
             $table->string('house')->nullable();
             $table->string('road')->nullable();
-            $table->string('city')->nullable();
 
             $table->enum('status', ['active', 'inactive'])->default('active');
 
