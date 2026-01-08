@@ -16,12 +16,7 @@ return new class extends Migration
 
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            $table->enum('day', [
-                'monday',
-                'tuesday',
-                'wednesday',
-                'thursday',
-                'friday',
+            $table->enum('day', ['monday','tuesday','wednesday','thursday','friday',
                 'saturday',
                 'sunday',
             ])->index();

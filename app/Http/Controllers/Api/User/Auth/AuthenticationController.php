@@ -2,7 +2,6 @@
 namespace App\Http\Controllers\Api\User\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\RegisterOtpMail;
 use App\Models\User;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
@@ -12,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class AuthenticationController extends Controller
@@ -25,11 +23,11 @@ class AuthenticationController extends Controller
 
         try {
             $validator = Validator::make($request->all(), [
-                'first_name' => ['required', 'string', 'max:255'],
-                'last_name'  => ['required', 'string', 'max:255'],
-                'email'      => ['required', 'string', 'email', 'unique:users', 'max:255'],
-                'phone_number'      => ['required', 'string', 'unique:users', 'max:255'],
-                'password'   => ['required', 'string', 'min:8'],
+                'first_name'   => ['required', 'string', 'max:255'],
+                'last_name'    => ['required', 'string', 'max:255'],
+                'email'        => ['required', 'string', 'email', 'unique:users', 'max:255'],
+                'phone_number' => ['required', 'string', 'unique:users', 'max:255'],
+                'password'     => ['required', 'string', 'min:8'],
             ]);
 
             if ($validator->fails()) {
@@ -44,7 +42,7 @@ class AuthenticationController extends Controller
                 'first_name'      => $validatedData['first_name'],
                 'last_name'       => $validatedData['last_name'],
                 'email'           => $validatedData['email'],
-                'phone_number'           => $validatedData['phone_number'],
+                'phone_number'    => $validatedData['phone_number'],
                 'password'        => Hash::make($validatedData['password']),
                 'otp'             => $otp,
                 'otp_expires_at'  => $otpExpiresAt,
@@ -158,6 +156,15 @@ class AuthenticationController extends Controller
 
     public function updateRole(Request $request)
     {
+
+        $validator = Validator::make($request->all(), [
+            'role'    => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error([], $validator->errors()->first(), 422);
+        }
+
         try {
             $user = auth('api')->user();
 
@@ -165,24 +172,23 @@ class AuthenticationController extends Controller
                 return $this->error([], 'User not found .', 400);
             }
 
-            if ($user->role !== null) {
-                return $this->error([], 'You have already updated your role. Role cannot be changed again.', 400);
-            }
+            // if ($user->role !== null) {
+            //     return $this->error([], 'You have already updated your role. Role cannot be changed again.', 400);
+            // }
 
             // update user role
             $user->update(['role' => $request->role]);
 
             // Prepare response data
             $userData = [
-                'id'            => $user->id,
-                'name'          => $user->name,
-                'email'         => $user->email,
-                'phone_number'  => $user->phone_number,
-                'date_of_birth' => $user->date_of_birth,
-                'role'          => $user->role,
+                'id'           => $user->id,
+                'name'         => $user->name,
+                'email'        => $user->email,
+                'phone_number' => $user->phone_number,
+                'role'         => $user->role,
 
-                'created_at'    => $user->created_at->format('Y-m-d H:i:s'),
-                'updated_at'    => $user->updated_at->format('Y-m-d H:i:s'),
+                'created_at'   => $user->created_at->format('Y-m-d H:i:s'),
+                'updated_at'   => $user->updated_at->format('Y-m-d H:i:s'),
             ];
 
             return $this->success($userData, 'User role updated successfully.', 200);

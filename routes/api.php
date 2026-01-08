@@ -1,27 +1,27 @@
 <?php
 //   dd
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Broadcast;
-use App\Http\Controllers\Api\Seller\OrderController;
-use App\Http\Controllers\Api\Website\HomeController;
 use App\Http\Controllers\Api\ResetPasswordController;
-use App\Http\Controllers\Api\User\WishlistController;
-use App\Http\Controllers\Web\Backend\SplashController;
-use App\Http\Controllers\Api\User\BookReviewController;
-use App\Http\Controllers\Api\User\ChatSystemController;
-use App\Http\Controllers\Api\Seller\DashboardController;
-use App\Http\Controllers\Api\User\SubscriptionController;
-use App\Http\Controllers\Api\User\UserCategoryController;
-use App\Http\Controllers\Api\User\PhysicalOrderController;
-use App\Http\Controllers\Api\Website\UserManageController;
-use App\Http\Controllers\Api\Seller\PhysicalBookController;
-use App\Http\Controllers\Api\User\BookCompletionController;
 use App\Http\Controllers\Api\Seller\BusinessPayoutController;
-use App\Http\Controllers\Api\User\Auth\SocialLoginController;
-use App\Http\Controllers\Api\User\Auth\UserProfileController;
+use App\Http\Controllers\Api\Seller\DashboardController;
+use App\Http\Controllers\Api\Seller\OrderController;
+use App\Http\Controllers\Api\Seller\PhysicalBookController;
 use App\Http\Controllers\Api\Seller\StripeOnboardingController;
 use App\Http\Controllers\Api\User\Auth\AuthenticationController;
+use App\Http\Controllers\Api\User\Auth\SocialLoginController;
+use App\Http\Controllers\Api\User\Auth\UserProfileController;
+use App\Http\Controllers\Api\User\BookCompletionController;
+use App\Http\Controllers\Api\User\BookReviewController;
+use App\Http\Controllers\Api\User\ChatSystemController;
+use App\Http\Controllers\Api\User\PhysicalOrderController;
+use App\Http\Controllers\Api\User\SubscriptionController;
+use App\Http\Controllers\Api\User\UserCategoryController;
+use App\Http\Controllers\Api\User\WishlistController;
+use App\Http\Controllers\Api\Website\HomeController;
+use App\Http\Controllers\Api\Website\UserManageController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
+use App\Http\Controllers\Web\Backend\SplashController;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,9 +87,18 @@ Route::delete('/delete-profile', [UserProfileController::class, 'deleteProfile']
 |--------------------------------------------------------------------------
 */
 
-Route::post('/update/role', [AuthenticationController::class, 'updateRole']);
+Route::middleware('auth:api')->prefix('auth')->group(function () {
 
-// website route list
+    Route::post('/update/role', [AuthenticationController::class, 'updateRole']);
+
+});
+
+
+
+
+
+
+
 
 // Route::middleware('auth')->prefix('auth')->group(function () {
 
@@ -115,16 +124,6 @@ Route::get('like/book/list', [HomeController::class, 'like_book_list']);
 
 // Route::get('plan/list', [HomeController::class, 'plan_list']);
 
-
-
-
-
-
-
-
-
-
-
 Route::get('/subscription/plan', [SubscriptionController::class, 'getPlans']);
 Route::get('/subscription/plan/{id}', [SubscriptionController::class, 'getPlanDetails']);
 
@@ -148,7 +147,6 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
     Route::get('/wishlist/list', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/store', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 
-
     Route::get('similar/book/list', [HomeController::class, 'similar_book_list']);
 
 });
@@ -169,11 +167,10 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
     Route::post('account/user/onboarding', [StripeOnboardingController::class, 'onboard']);
     Route::get('account/connect/check', [StripeOnboardingController::class, 'connect_check']);
 
-      // stripe payout
+    // stripe payout
     Route::get('account/balance', [BusinessPayoutController::class, 'getBalance']);
     Route::post('account/payout/withdraw', [BusinessPayoutController::class, 'withdraw']);
     Route::get('account/transactions', [BusinessPayoutController::class, 'getAllTransactionHistory']);
-
 
 });
 

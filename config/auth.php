@@ -53,15 +53,15 @@ return [
         // ],
 
 
-        // 'business' => [
-        //     'driver' => 'jwt',
-        //     'provider' => 'users',
-        // ],
+        'client' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ],
 
-        // 'employee' => [
-        //     'driver' => 'jwt',
-        //     'provider' => 'users',
-        // ],
+        'professional' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ],
 
         // 'company' => [
         //     'driver' => 'jwt',
