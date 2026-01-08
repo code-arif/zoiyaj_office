@@ -182,7 +182,8 @@ class AuthenticationController extends Controller
             // Prepare response data
             $userData = [
                 'id'           => $user->id,
-                'name'         => $user->name,
+                'first_name'         => $user->first_name,
+                'last_name'         => $user->last_name,
                 'email'        => $user->email,
                 'phone_number' => $user->phone_number,
                 'role'         => $user->role,
@@ -192,9 +193,13 @@ class AuthenticationController extends Controller
             ];
 
             return $this->success($userData, 'User role updated successfully.', 200);
+
+
         } catch (Exception $e) {
+
             Log::error('Role update error: ' . $e->getMessage());
             return $this->error([], 'An error occurred while updating the role.', 500);
+
         }
     }
 
