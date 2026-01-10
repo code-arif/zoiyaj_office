@@ -13,6 +13,12 @@ use Stripe\Stripe;
 
 class PlanController extends Controller
 {
+
+
+    // for the testing comment
+
+
+
     public function __construct()
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
