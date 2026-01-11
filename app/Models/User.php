@@ -39,6 +39,14 @@ class User extends Authenticatable implements JWTSubject
         'reset_password_token',
         'reset_password_token_expire_at',
         'stripe_account_id',
+        'professional_name',
+        'professional_email',
+        'professional_phone',
+        'address',
+        'city',
+        'state',
+        'postal_code',
+        'country'
     ];
 
     protected $hidden = [

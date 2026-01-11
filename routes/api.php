@@ -1,5 +1,7 @@
 <?php
 //   dd
+
+use App\Http\Controllers\Api\Professional\ProfessionalProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\Seller\BusinessPayoutController;
 use App\Http\Controllers\Api\Seller\DashboardController;
@@ -92,6 +94,34 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
     Route::post('/update/role', [AuthenticationController::class, 'updateRole']);
 
 });
+
+
+
+
+
+
+
+
+
+
+// professional api manage
+
+Route::middleware(['auth:professional', 'role:professional'])->prefix('auth-professional')->group(function () {
+
+    Route::post('/setup/basic/information', [ProfessionalProfileController::class, 'setup_basic']);
+
+});
+
+
+
+
+
+
+
+
+
+
+
 
 
 
