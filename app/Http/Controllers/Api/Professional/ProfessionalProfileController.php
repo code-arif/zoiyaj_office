@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api\Professional;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProfessionalSpecialty;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -59,4 +60,59 @@ class ProfessionalProfileController extends Controller
         return $this->success($user_prof_information, 'Professional profile updated successfully', 200);
 
     }
+
+    public function preferences_info(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'specialty_id'            => 'required|array',
+            'specialty_id.*'          => 'exists:specialties,id',
+            'years_in_business'       => 'required|integer',
+            'is_promo_participation'  => 'boolean',
+            'accessibilties'          => 'required|array',
+            'accessibilties.*'        => 'string|in:wheelchair,hijab_friendly',
+            'is_sell_retail_products' => 'boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors(), 'Validation failed', 422);
+        }
+
+        $user = auth('api')->user();
+
+        // Prepare data for update
+        $updateData = [
+            'years_in_business'       => $request->input('years_in_business', 0),
+            'is_promo_participation'  => $request->input('is_promo_participation', false),
+            'is_sell_retail_products' => $request->input('is_sell_retail_products', false),
+        ];
+
+        // Handle accessibilties JSON
+        if ($request->has('accessibilties')) {
+            $updateData['accessibilties'] = json_encode($request->input('accessibilties'));
+        }
+
+        // Update user profile
+        $user->update($updateData);
+
+        // Sync specialties (delete old and insert new)
+        $user->user_specialty()->delete();
+        if (! empty($request->specialty_id)) {
+            $specialties = collect($request->specialty_id)->map(function ($id) use ($user) {
+                return [
+                    'user_id'      => $user->id,
+                    'specialty_id' => $id,
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
+                ];
+            })->toArray();
+
+            ProfessionalSpecialty::insert($specialties);
+        }
+
+        // Load updated specialties
+        $user->load('user_specialty');
+
+        return $this->success($user, 'Professional preferences updated successfully', 200);
+    }
+
 }

@@ -46,7 +46,11 @@ class User extends Authenticatable implements JWTSubject
         'city',
         'state',
         'postal_code',
-        'country'
+        'country',
+        'years_in_business',
+        'is_promo_participation',
+        'is_sell_retail_products',
+        'accessibilties'
     ];
 
     protected $hidden = [
@@ -159,6 +163,12 @@ class User extends Authenticatable implements JWTSubject
     public function total_earned_amount()
     {
         return $this->sold_orders()->sum('total_amount');
+    }
+
+
+    public function user_specialty()
+    {
+        return $this->hasMany(ProfessionalSpecialty::class);
     }
 
 

@@ -109,6 +109,7 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 Route::middleware(['auth:professional', 'role:professional'])->prefix('auth-professional')->group(function () {
 
     Route::post('/setup/basic/information', [ProfessionalProfileController::class, 'setup_basic']);
+    Route::post('/setup/preferences/information', [ProfessionalProfileController::class, 'preferences_info']);
 
 });
 
