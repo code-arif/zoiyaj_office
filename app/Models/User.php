@@ -160,4 +160,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(ProfessinalWorkingHour::class, 'user_id', 'id');
     }
 
+    public function user_brands()
+    {
+        return $this->hasMany(ProfessionalBrand::class, 'user_id', 'id');
+    }
+
 }

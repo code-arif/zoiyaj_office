@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api\Professional;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProfessionalBrand;
 use App\Models\ProfessionalSpecialty;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -172,5 +173,48 @@ class ProfessionalProfileController extends Controller
             200
         );
     }
+
+
+
+
+
+    public function setup_brand(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'brand_id'            => 'required|array',
+            'brand_id.*'          => 'exists:brands,id',
+
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors(), 'Validation failed', 422);
+        }
+
+        $user = auth('api')->user();
+
+
+        // Sync brands (delete old and insert new)
+        $user->user_brands()->delete();
+        if (! empty($request->brand_id)) {
+            $brands = collect($request->brand_id)->map(function ($id) use ($user) {
+                return [
+                    'user_id'      => $user->id,
+                    'brand_id' => $id,
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
+                ];
+            })->toArray();
+
+            ProfessionalBrand::insert($brands);
+        }
+
+        // Load updated brands
+        $user->load('user_brands');
+
+        return $this->success($user, 'Professional brands updated successfully', 200);
+    }
+
+
+
 
 }
