@@ -122,9 +122,11 @@ class ProfessionalProfileController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-
     public function working_hours(Request $request)
     {
+
+        // dd($request->all());
+
         $validator = Validator::make($request->all(), [
             'working_hours'              => 'required|array|size:7',
             'working_hours.*.day'        => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
@@ -139,37 +141,33 @@ class ProfessionalProfileController extends Controller
 
         $user = auth('api')->user();
 
+        // $user->working_hours()->delete();
+        // foreach ($request->input('working_hours') as $hour) {
+        //     $user->working_hours()->create([
+        //         'day'        => $hour['day'],
+        //         'is_closed'  => $hour['is_closed'],
+        //         'open_time'  => $hour['is_closed'] ? null : $hour['open_time'],
+        //         'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+        //     ]);
+        // }
 
-        $user->working_hours()->delete(); // assuming relationship name is working_hours
+        //  sync/updateOrCreate
 
         foreach ($request->input('working_hours') as $hour) {
-            $user->working_hours()->create([
-                'day'        => $hour['day'],
-                'is_closed'  => $hour['is_closed'],
-                'open_time'  => $hour['is_closed'] ? null : $hour['open_time'],
-                'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
-            ]);
+            $user->working_hours()->updateOrCreate(
+                ['day' => $hour['day']],
+                [
+                    'is_closed'  => $hour['is_closed'],
+                    'open_time'  => $hour['is_closed'] ? null : $hour['open_time'],
+                    'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+                ]
+            );
         }
 
-        // অথবা sync/updateOrCreate দিয়ে আরও efficient করতে পারো
-        /*
-    foreach ($request->input('working_hours') as $hour) {
-        $user->workingHours()->updateOrCreate(
-            ['day' => $hour['day']],
-            [
-                'is_closed'  => $hour['is_closed'],
-                'open_time'  => $hour['is_closed'] ? null : $hour['open_time'],
-                'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
-            ]
-        );
-    }
-    */
-
-        // রিলেশন লোড করে রিটার্ন
-        $user->load('workingHours');
+        $user->load('working_hours');
 
         return $this->success(
-            $user->workingHours,
+            $user->working_hours,
             'Working hours updated successfully',
             200
         );
