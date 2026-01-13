@@ -115,4 +115,64 @@ class ProfessionalProfileController extends Controller
         return $this->success($user, 'Professional preferences updated successfully', 200);
     }
 
+    /**
+     * Update Weekly Working Hours
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+
+    public function working_hours(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'working_hours'              => 'required|array|size:7',
+            'working_hours.*.day'        => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            'working_hours.*.is_closed'  => 'required|boolean',
+            'working_hours.*.open_time'  => 'nullable|required_if:working_hours.*.is_closed,false|date_format:H:i',
+            'working_hours.*.close_time' => 'nullable|required_if:working_hours.*.is_closed,false|date_format:H:i|after:working_hours.*.open_time',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors(), 'Validation failed', 422);
+        }
+
+        $user = auth('api')->user();
+
+
+        $user->working_hours()->delete(); // assuming relationship name is working_hours
+
+        foreach ($request->input('working_hours') as $hour) {
+            $user->working_hours()->create([
+                'day'        => $hour['day'],
+                'is_closed'  => $hour['is_closed'],
+                'open_time'  => $hour['is_closed'] ? null : $hour['open_time'],
+                'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+            ]);
+        }
+
+        // অথবা sync/updateOrCreate দিয়ে আরও efficient করতে পারো
+        /*
+    foreach ($request->input('working_hours') as $hour) {
+        $user->workingHours()->updateOrCreate(
+            ['day' => $hour['day']],
+            [
+                'is_closed'  => $hour['is_closed'],
+                'open_time'  => $hour['is_closed'] ? null : $hour['open_time'],
+                'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+            ]
+        );
+    }
+    */
+
+        // রিলেশন লোড করে রিটার্ন
+        $user->load('workingHours');
+
+        return $this->success(
+            $user->workingHours,
+            'Working hours updated successfully',
+            200
+        );
+    }
+
 }

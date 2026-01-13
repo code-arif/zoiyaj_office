@@ -28,6 +28,7 @@ class AuthenticationController extends Controller
                 'email'        => ['required', 'string', 'email', 'unique:users', 'max:255'],
                 'phone_number' => ['required', 'string', 'unique:users', 'max:255'],
                 'password'     => ['required', 'string', 'min:8'],
+                'role'         => ['required'],
             ]);
 
             if ($validator->fails()) {
@@ -43,6 +44,7 @@ class AuthenticationController extends Controller
                 'last_name'       => $validatedData['last_name'],
                 'email'           => $validatedData['email'],
                 'phone_number'    => $validatedData['phone_number'],
+                'role'    => $validatedData['role'],
                 'password'        => Hash::make($validatedData['password']),
                 'otp'             => $otp,
                 'otp_expires_at'  => $otpExpiresAt,
@@ -158,7 +160,7 @@ class AuthenticationController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'role'    => ['required'],
+            'role' => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -182,8 +184,8 @@ class AuthenticationController extends Controller
             // Prepare response data
             $userData = [
                 'id'           => $user->id,
-                'first_name'         => $user->first_name,
-                'last_name'         => $user->last_name,
+                'first_name'   => $user->first_name,
+                'last_name'    => $user->last_name,
                 'email'        => $user->email,
                 'phone_number' => $user->phone_number,
                 'role'         => $user->role,
@@ -193,7 +195,6 @@ class AuthenticationController extends Controller
             ];
 
             return $this->success($userData, 'User role updated successfully.', 200);
-
 
         } catch (Exception $e) {
 

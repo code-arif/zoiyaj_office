@@ -50,7 +50,7 @@ class User extends Authenticatable implements JWTSubject
         'years_in_business',
         'is_promo_participation',
         'is_sell_retail_products',
-        'accessibilties'
+        'accessibilties',
     ];
 
     protected $hidden = [
@@ -83,11 +83,6 @@ class User extends Authenticatable implements JWTSubject
         return $value;
     }
 
-
-
-
-
-
     public function get_project()
     {
         return $this->hasMany(CompanyProject::class, 'company_id', 'id');
@@ -113,15 +108,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(BookReview::class);
     }
 
-
-
     // as  seller orders
     public function sold_orders()
     {
         return $this->hasMany(Order::class, 'seller_id', 'id');
     }
-
-
 
     // as buyer orders
     public function bought_orders()
@@ -129,12 +120,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Order::class, 'buyer_id', 'id');
     }
 
-
     public function book_completions()
     {
         return $this->hasMany(UserBookCompletion::class);
     }
-
 
     // user uploaded books by uploaded_by field
     public function books()
@@ -149,15 +138,11 @@ class User extends Authenticatable implements JWTSubject
 
     }
 
-
     // as book owner total reviews
     public function total_book_reviews()
     {
         return $this->hasManyThrough(BookReview::class, Book::class, 'uploaded_by', 'book_id', 'id', 'id');
     }
-
-
-
 
     // total earned amount as seller
     public function total_earned_amount()
@@ -165,11 +150,14 @@ class User extends Authenticatable implements JWTSubject
         return $this->sold_orders()->sum('total_amount');
     }
 
-
     public function user_specialty()
     {
-        return $this->hasMany(ProfessionalSpecialty::class);
+        return $this->hasMany(ProfessionalSpecialty::class, 'user_id', 'id');
     }
 
+    public function working_hours()
+    {
+        return $this->hasMany(ProfessinalWorkingHour::class, 'user_id', 'id');
+    }
 
 }
