@@ -83,6 +83,30 @@ class User extends Authenticatable implements JWTSubject
         return $value;
     }
 
+    public function getLogoPathAttribute($value): string | null
+    {
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+        if (request()->is('api/*') && ! empty($value)) {
+
+            return url($value);
+        }
+        return $value;
+    }
+
+    public function getCertificatePathAttribute($value): string | null
+    {
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+        if (request()->is('api/*') && ! empty($value)) {
+
+            return url($value);
+        }
+        return $value;
+    }
+
     public function get_project()
     {
         return $this->hasMany(CompanyProject::class, 'company_id', 'id');
@@ -163,6 +187,11 @@ class User extends Authenticatable implements JWTSubject
     public function user_brands()
     {
         return $this->hasMany(ProfessionalBrand::class, 'user_id', 'id');
+    }
+
+    public function services()
+    {
+        return $this->hasMany(ProfessinalService::class, 'user_id', 'id');
     }
 
 }

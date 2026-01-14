@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api\Professional;
 
+use App\Helper\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\ProfessionalBrand;
 use App\Models\ProfessionalSpecialty;
@@ -174,15 +175,11 @@ class ProfessionalProfileController extends Controller
         );
     }
 
-
-
-
-
     public function setup_brand(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'brand_id'            => 'required|array',
-            'brand_id.*'          => 'exists:brands,id',
+            'brand_id'   => 'required|array',
+            'brand_id.*' => 'exists:brands,id',
 
         ]);
 
@@ -192,16 +189,15 @@ class ProfessionalProfileController extends Controller
 
         $user = auth('api')->user();
 
-
         // Sync brands (delete old and insert new)
         $user->user_brands()->delete();
         if (! empty($request->brand_id)) {
             $brands = collect($request->brand_id)->map(function ($id) use ($user) {
                 return [
-                    'user_id'      => $user->id,
-                    'brand_id' => $id,
-                    'created_at'   => now(),
-                    'updated_at'   => now(),
+                    'user_id'    => $user->id,
+                    'brand_id'   => $id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
             })->toArray();
 
@@ -214,7 +210,63 @@ class ProfessionalProfileController extends Controller
         return $this->success($user, 'Professional brands updated successfully', 200);
     }
 
+    public function services(Request $request)
+    {
 
+        $validator = Validator::make($request->all(), [
+            'logo'                      => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'certificate'               => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:5120',
 
+            'services'                  => 'required|array|min:1',
+            'services.*.name'           => 'required|string|max:100',
+            'services.*.starting_price' => 'required|numeric|min:0',
+            'services.*.duration'       => 'nullable|string|max:50',
+        ]);
 
+        if ($validator->fails()) {
+            return $this->error($validator->errors(), 'Validation failed', 422);
+        }
+
+        $user = auth('api')->user();
+
+        if ($request->hasFile('logo')) {
+            if ($user->logo) {
+                Helper::deleteImage($user->logo);
+            }
+            $logo = Helper::uploadImage($request->file('logo'), 'profile');
+
+        }
+
+        $user->logo_path = $logo;
+
+        if ($request->hasFile('certificate')) {
+            if ($user->certificate) {
+                Helper::deleteImage($user->certificate);
+            }
+            $certificate = Helper::uploadImage($request->file('certificate'), 'profile');
+
+        }
+
+        $user->certificate_path = $certificate;
+
+        $user->save();
+
+        $user->services()->delete();
+
+        foreach ($request->input('services', []) as $serviceData) {
+            $user->services()->create([
+                'name'           => $serviceData['name'],
+                'starting_price' => $serviceData['starting_price'],
+                'duration'       => $serviceData['duration'] ?? null,
+            ]);
+        }
+
+        $user->load('services');
+
+        return $this->success(
+            $user,
+            'Profile & services added successfully',
+            200
+        );
+    }
 }

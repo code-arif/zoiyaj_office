@@ -112,6 +112,7 @@ Route::middleware(['auth:professional', 'role:professional'])->prefix('auth-prof
     Route::post('/setup/preferences/information', [ProfessionalProfileController::class, 'preferences_info']);
     Route::post('/setup/working/hours', [ProfessionalProfileController::class, 'working_hours']);
     Route::post('/setup/brands', [ProfessionalProfileController::class, 'setup_brand']);
+    Route::post('/setup/service/information', [ProfessionalProfileController::class, 'services']);
 
 });
 
