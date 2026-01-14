@@ -51,6 +51,7 @@ class User extends Authenticatable implements JWTSubject
         'is_promo_participation',
         'is_sell_retail_products',
         'accessibilties',
+        'bio'
     ];
 
     protected $hidden = [

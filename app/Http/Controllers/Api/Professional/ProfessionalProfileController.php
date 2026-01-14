@@ -25,6 +25,7 @@ class ProfessionalProfileController extends Controller
             'state'              => 'required',
             'postal_code'        => 'required',
             'country'            => 'required',
+            'bio'                => 'required',
 
         ]);
 
@@ -32,9 +33,9 @@ class ProfessionalProfileController extends Controller
             return $this->error([], $validator->errors()->first(), 200);
         }
 
-        $user_prof_information = auth('api')->user();
+        $prof_info = auth('api')->user();
 
-        $user_prof_information->update([
+        $prof_info->update([
             'professional_name'  => $request->professional_name,
             'professional_phone' => $request->professional_phone,
             'professional_email' => $request->professional_email,
@@ -43,23 +44,25 @@ class ProfessionalProfileController extends Controller
             'state'              => $request->state,
             'postal_code'        => $request->postal_code,
             'country'            => $request->country,
+            'bio'                => $request->bio,
         ]);
 
         // Only return the updated business profile fields
-        $user_prof_information = [
-            'id'                 => $user_prof_information->id,
-            'role'               => $user_prof_information->role,
-            'professional_name'  => $user_prof_information->professional_name,
-            'professional_phone' => $user_prof_information->professional_phone,
-            'professional_email' => $user_prof_information->professional_email,
-            'address'            => $user_prof_information->address,
-            'city'               => $user_prof_information->city,
-            'state'              => $user_prof_information->state,
-            'postal_code'        => $user_prof_information->postal_code,
-            'country'            => $user_prof_information->country,
+        $prof_info = [
+            'id'                 => $prof_info->id,
+            'role'               => $prof_info->role,
+            'professional_name'  => $prof_info->professional_name,
+            'professional_phone' => $prof_info->professional_phone,
+            'professional_email' => $prof_info->professional_email,
+            'address'            => $prof_info->address,
+            'city'               => $prof_info->city,
+            'state'              => $prof_info->state,
+            'postal_code'        => $prof_info->postal_code,
+            'country'            => $prof_info->country,
+            'bio'                => $prof_info->bio,
         ];
 
-        return $this->success($user_prof_information, 'Professional profile updated successfully', 200);
+        return $this->success($prof_info, 'Professional profile updated successfully', 200);
 
     }
 
@@ -261,8 +264,6 @@ class ProfessionalProfileController extends Controller
             ]);
         }
 
-        // $user->load('services');
-
         $user = [
             'id'          => $user->id,
             'role'        => $user->role,
@@ -272,10 +273,46 @@ class ProfessionalProfileController extends Controller
 
         ];
 
-        return $this->success(
-            $user,
-            'Profile & services added successfully',
-            200
-        );
+        return $this->success($user, 'Profile & services added successfully', 200);
     }
+
+    public function about_me(Request $request)
+    {
+        $user = auth('api')->user();
+
+        if (! $user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+
+
+        $data = [
+            'id'    => $user->id,
+            'first_name'  => $user->first_name,
+            'last_name'  => $user->last_name,
+            'professional_name'  => $user->professional_name,
+            'total_ratings' => "0'0",
+            'total_reviews' => "0'0",
+            'total_followers' => "0'0",
+            'bio' => $user->bio,
+
+            'address' => $user->address,
+            'city' => $user->city,
+            'state' => $user->state,
+            'postal_code' => $user->postal_code,
+            'country' => $user->country,
+
+            'working_hours' => $user->working_hours,
+
+            'accessibilties' => json_decode($user->accessibilties),
+
+            'services' => $user->services,
+
+
+
+        ];
+
+        return $this->success($data, 'Professional profile information retrive  successfully', 200);
+    }
+
 }

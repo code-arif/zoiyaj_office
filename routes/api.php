@@ -95,44 +95,24 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 
 });
 
-
-
-
-
-
-
-
-
-
 // professional api manage
 
 Route::middleware(['auth:professional', 'role:professional'])->prefix('auth-professional')->group(function () {
 
+    // profile create
     Route::post('/setup/basic/information', [ProfessionalProfileController::class, 'setup_basic']);
     Route::post('/setup/preferences/information', [ProfessionalProfileController::class, 'preferences_info']);
     Route::post('/setup/working/hours', [ProfessionalProfileController::class, 'working_hours']);
     Route::post('/setup/brands', [ProfessionalProfileController::class, 'setup_brand']);
     Route::post('/setup/service/information', [ProfessionalProfileController::class, 'services']);
 
+
+
+
+    // information
+    Route::get('about/me', [ProfessionalProfileController::class, 'about_me']);
+
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Route::middleware('auth')->prefix('auth')->group(function () {
 
