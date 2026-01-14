@@ -261,7 +261,16 @@ class ProfessionalProfileController extends Controller
             ]);
         }
 
-        $user->load('services');
+        // $user->load('services');
+
+        $user = [
+            'id'          => $user->id,
+            'role'        => $user->role,
+            'logo'        => $user->logo_path,
+            'certificate' => $user->certificate_path,
+            'services'    => $user->services,
+
+        ];
 
         return $this->success(
             $user,
