@@ -11,6 +11,14 @@ class ProfessionalBrand extends Model
 
     ];
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     protected $table = 'professional_brands';
+
+
+
+    public function brand(){
+        return $this->belongsTo(Brand::class);
+    }
 
 }

@@ -42,8 +42,8 @@ class ProfessionalProfileController extends Controller
             'professional_phone' => $request->professional_phone,
             'professional_email' => $request->professional_email,
             'address'            => $request->address,
-            'latitude'            => $request->latitude,
-            'longitude'            => $request->longitude,
+            'latitude'           => $request->latitude,
+            'longitude'          => $request->longitude,
             'city'               => $request->city,
             'state'              => $request->state,
             'postal_code'        => $request->postal_code,
@@ -59,8 +59,8 @@ class ProfessionalProfileController extends Controller
             'professional_phone' => $prof_info->professional_phone,
             'professional_email' => $prof_info->professional_email,
             'address'            => $prof_info->address,
-            'latitude'            => $prof_info->latitude,
-            'longitude'            => $prof_info->longitude,
+            'latitude'           => $prof_info->latitude,
+            'longitude'          => $prof_info->longitude,
             'city'               => $prof_info->city,
             'state'              => $prof_info->state,
             'postal_code'        => $prof_info->postal_code,
@@ -238,9 +238,8 @@ class ProfessionalProfileController extends Controller
 
         $user = auth('api')->user();
 
-        $logo = null;
+        $logo        = null;
         $certificate = null;
-
 
         if ($request->hasFile('logo')) {
             if ($user->logo) {
@@ -296,25 +295,27 @@ class ProfessionalProfileController extends Controller
 
         $data = [
 
-            'id'                => $user->id,
-            'avatar'            => $user->avatar,
-            'first_name'        => $user->first_name,
-            'last_name'         => $user->last_name,
-            'professional_name' => $user->professional_name,
-            'total_ratings'     => "0'0",
-            'total_reviews'     => "0'0",
-            'total_followers'   => "0'0",
-            'bio'               => $user->bio,
+            'id'                 => $user->id,
+            'avatar'             => $user->avatar ?? null,
+            'first_name'         => $user->first_name ?? null,
+            'last_name'          => $user->last_name ?? null,
+            'professional_name'  => $user->professional_name ?? null,
+            'professional_phone' => $user->professional_phone ?? null,
+            'professional_email' => $user->professional_email ?? null,
+            'address'            => $user->address ?? null,
+            'city'               => $user->city ?? null,
+            'state'              => $user->state ?? null,
+            'postal_code'        => $user->postal_code ?? null,
+            'country'            => $user->country ?? null,
+            'bio'                => $user->bio ?? null,
+            'total_ratings'      => "0'0",
+            'total_reviews'      => "0'0",
+            'total_followers'    => "0'0",
 
-            'address'           => $user->address,
-            'city'              => $user->city,
-            'state'             => $user->state,
-            'postal_code'       => $user->postal_code,
-            'country'           => $user->country,
-
-            'working_hours'     => $user->working_hours,
-            'accessibilties'    => json_decode($user->accessibilties),
-            'services'          => $user->services,
+            'working_hours'      => $user->working_hours,
+            'accessibilties'     => json_decode($user->accessibilties),
+            'services'           => $user->services,
+            'brands' => $user->user_brands->load('brand')
 
         ];
 
