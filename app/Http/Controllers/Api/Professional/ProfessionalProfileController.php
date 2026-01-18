@@ -32,7 +32,7 @@ class ProfessionalProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->error([], $validator->errors()->first(), 200);
+            return $this->error([], $validator->errors()->first(), 422);
         }
 
         $prof_info = auth('api')->user();
