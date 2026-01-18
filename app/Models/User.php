@@ -51,7 +51,9 @@ class User extends Authenticatable implements JWTSubject
         'is_promo_participation',
         'is_sell_retail_products',
         'accessibilties',
-        'bio'
+        'bio',
+        'latitude',
+        'longitude'
     ];
 
     protected $hidden = [
@@ -193,6 +195,11 @@ class User extends Authenticatable implements JWTSubject
     public function services()
     {
         return $this->hasMany(ProfessinalService::class, 'user_id', 'id');
+    }
+
+    public function portfolios()
+    {
+        return $this->hasMany(ProfessionalPortfolio::class, 'user_id', 'id');
     }
 
 }

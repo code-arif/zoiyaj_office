@@ -21,6 +21,8 @@ class ProfessionalProfileController extends Controller
             'professional_phone' => 'required',
             'professional_email' => 'required',
             'address'            => 'required',
+            'latitude'           => 'required',
+            'longitude'          => 'required',
             'city'               => 'required',
             'state'              => 'required',
             'postal_code'        => 'required',
@@ -40,6 +42,8 @@ class ProfessionalProfileController extends Controller
             'professional_phone' => $request->professional_phone,
             'professional_email' => $request->professional_email,
             'address'            => $request->address,
+            'latitude'            => $request->latitude,
+            'longitude'            => $request->longitude,
             'city'               => $request->city,
             'state'              => $request->state,
             'postal_code'        => $request->postal_code,
@@ -55,6 +59,8 @@ class ProfessionalProfileController extends Controller
             'professional_phone' => $prof_info->professional_phone,
             'professional_email' => $prof_info->professional_email,
             'address'            => $prof_info->address,
+            'latitude'            => $prof_info->latitude,
+            'longitude'            => $prof_info->longitude,
             'city'               => $prof_info->city,
             'state'              => $prof_info->state,
             'postal_code'        => $prof_info->postal_code,
@@ -232,6 +238,10 @@ class ProfessionalProfileController extends Controller
 
         $user = auth('api')->user();
 
+        $logo = null;
+        $certificate = null;
+
+
         if ($request->hasFile('logo')) {
             if ($user->logo) {
                 Helper::deleteImage($user->logo);
@@ -284,31 +294,27 @@ class ProfessionalProfileController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-
-
         $data = [
-            'id'    => $user->id,
-            'first_name'  => $user->first_name,
-            'last_name'  => $user->last_name,
-            'professional_name'  => $user->professional_name,
-            'total_ratings' => "0'0",
-            'total_reviews' => "0'0",
-            'total_followers' => "0'0",
-            'bio' => $user->bio,
 
-            'address' => $user->address,
-            'city' => $user->city,
-            'state' => $user->state,
-            'postal_code' => $user->postal_code,
-            'country' => $user->country,
+            'id'                => $user->id,
+            'avatar'            => $user->avatar,
+            'first_name'        => $user->first_name,
+            'last_name'         => $user->last_name,
+            'professional_name' => $user->professional_name,
+            'total_ratings'     => "0'0",
+            'total_reviews'     => "0'0",
+            'total_followers'   => "0'0",
+            'bio'               => $user->bio,
 
-            'working_hours' => $user->working_hours,
+            'address'           => $user->address,
+            'city'              => $user->city,
+            'state'             => $user->state,
+            'postal_code'       => $user->postal_code,
+            'country'           => $user->country,
 
-            'accessibilties' => json_decode($user->accessibilties),
-
-            'services' => $user->services,
-
-
+            'working_hours'     => $user->working_hours,
+            'accessibilties'    => json_decode($user->accessibilties),
+            'services'          => $user->services,
 
         ];
 

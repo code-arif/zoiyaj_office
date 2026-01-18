@@ -8,6 +8,8 @@ class ProfessinalWorkingHour extends Model
 {
     protected $fillable = ['day', 'is_closed', 'open_time', 'close_time'];
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     // WorkingHour model
     public function getOpenTime12Attribute()
     {

@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
              $table->longText('bio')->nullable()->after('country');
+             $table->string('latitude')->nullable()->after('bio');
+             $table->string('longitude')->nullable()->after('latitude');
 
         });
     }

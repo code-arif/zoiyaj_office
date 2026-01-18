@@ -1,6 +1,7 @@
 <?php
 //   dd
 
+use App\Http\Controllers\Api\Professional\PortfolioController;
 use App\Http\Controllers\Api\Professional\ProfessionalProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\Seller\BusinessPayoutController;
@@ -106,37 +107,14 @@ Route::middleware(['auth:professional', 'role:professional'])->prefix('auth-prof
     Route::post('/setup/brands', [ProfessionalProfileController::class, 'setup_brand']);
     Route::post('/setup/service/information', [ProfessionalProfileController::class, 'services']);
 
-
-
-
     // information
     Route::get('about/me', [ProfessionalProfileController::class, 'about_me']);
 
+    // portfolio
+    Route::get('/portfolio/list', [PortfolioController::class, 'list']);
+    Route::post('/portfolio/update', [PortfolioController::class, 'update']);
+
 });
-
-// Route::middleware('auth')->prefix('auth')->group(function () {
-
-Route::get('book/list', [HomeController::class, 'book_list']);
-Route::get('book/details/{slug}', [HomeController::class, 'book_details']);
-
-Route::get('category/list', [HomeController::class, 'category_list']);
-Route::get('specialty/list', [HomeController::class, 'specialty_list']);
-Route::get('book/review/list', [HomeController::class, 'book_review_list']);
-
-Route::get('recommended/book/list', [HomeController::class, 'recommended_book_list']);
-Route::get('top/review/book/list', [HomeController::class, 'top_review_book_list']);
-
-// top selling book list
-Route::get('top/selling/book/list', [HomeController::class, 'top_selling_book_list']);
-
-// related book list
-Route::get('related/book/list/{category_ids}', [HomeController::class, 'related_book_list']);
-
-//similar book list
-
-Route::get('like/book/list', [HomeController::class, 'like_book_list']);
-
-// Route::get('plan/list', [HomeController::class, 'plan_list']);
 
 Route::get('/subscription/plan', [SubscriptionController::class, 'getPlans']);
 Route::get('/subscription/plan/{id}', [SubscriptionController::class, 'getPlanDetails']);
