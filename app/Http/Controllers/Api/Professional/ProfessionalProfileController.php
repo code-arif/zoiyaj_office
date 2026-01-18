@@ -296,6 +296,7 @@ class ProfessionalProfileController extends Controller
         $data = [
 
             'id'                 => $user->id,
+            'profile_completion' => "20%",
             'avatar'             => $user->avatar ?? null,
             'first_name'         => $user->first_name ?? null,
             'last_name'          => $user->last_name ?? null,
