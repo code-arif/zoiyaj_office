@@ -23,6 +23,13 @@ class DatabaseSeeder extends Seeder
         $this->call(DynamicPageSeeder::class);
 
         // $this->call(PlanSeeder::class);
+        $this->call(SpecialtySeeder::class);
+        $this->call(ProfessionalSpecialtySeeder::class);
+        $this->call(ProfessionalBrandSeeder::class);
+        $this->call(ProfessionalWorkingHoursSeeder::class);
+        $this->call(ProfessionalServiceSeeder::class);
+        $this->call(ProfessionalPortfolioSeeder::class);
+
 
     }
 }

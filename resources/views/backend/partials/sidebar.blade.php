@@ -36,7 +36,15 @@
                     </a>
                 </li>
 
-
+                {{-- Professional --}}
+                <li class="slide">
+                    <a class="side-menu__item {{ request()->routeIs('professionals.*') ? 'has-link' : '' }}"
+                        href="{{ route('professionals.index') }}">
+                        <i class="fa-solid fa-user-tie"
+                            style="margin-right: 10px; font-size: 16px; margin-left: 3px;"></i>
+                        <span class="side-menu__label">Professionals</span>
+                    </a>
+                </li>
 
 
                 <li class="slide">

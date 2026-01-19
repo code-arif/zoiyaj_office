@@ -20,7 +20,7 @@
     <div class="popup-menu">
         <div class="menu-inner">
             <div class="menu-top">
-                <a href="index.html"><img src="{{ asset('website/img/logo.png') }}" alt=""></a>
+                <a href="{{ route('dashboard') }}"><img src="{{ asset('website/img/logo.png') }}" alt=""></a>
                 <button class="menu-x"><img src="{{ asset('website/img/times.svg') }} " alt=""></button>
             </div>
             <div class="mobile-nav">
@@ -85,7 +85,7 @@
                 </div>
                 <div class="col-xl-2 col-4">
                     <div class="logo">
-                        <a href="index.html"><img src="{{ asset('website/img/logo.png') }}" alt=""></a>
+                        <a href="{{ route('dashboard') }}"><img src="{{ asset('website/img/logo.png') }}" alt=""></a>
                     </div>
                 </div>
                 <div class="col-xl-5 col-8">

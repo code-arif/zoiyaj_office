@@ -3,7 +3,7 @@
 @section('content')
 <!-- CONTAINER OPEN -->
 <div class="col col-login mx-auto text-center">
-    <a href="index.html" class="text-center">
+    <a href="{{ route('dashboard') }}" class="text-center">
         <img src="{{ asset($settings->logo ?? 'default/logo.png') }}" class="header-brand-img" alt="">
     </a>
 </div>

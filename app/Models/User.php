@@ -1,12 +1,14 @@
 <?php
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use App\Models\Specialty;
 use Laravel\Cashier\Billable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -162,7 +164,6 @@ class User extends Authenticatable implements JWTSubject
     public function total_completed_deliveries()
     {
         return $this->sold_orders()->where('status', 'completed')->count();
-
     }
 
     // as book owner total reviews
@@ -202,4 +203,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(ProfessionalPortfolio::class, 'user_id', 'id');
     }
 
+    public function specialties()
+    {
+        return $this->belongsToMany(
+            Specialty::class,
+            'professional_specialties'
+        );
+    }
 }

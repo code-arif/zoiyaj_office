@@ -25,6 +25,7 @@ use App\Http\Controllers\Web\Backend\Settings\ProfileController;
 use App\Http\Controllers\Web\Backend\Settings\SettingController;
 use App\Http\Controllers\Web\Backend\Settings\FirebaseController;
 use App\Http\Controllers\Web\Backend\CMS\OrderAndDeliveryController;
+use App\Http\Controllers\Web\Backend\Professionals\ProfessionalsManageController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
 use App\Http\Controllers\Web\Backend\Settings\MailSettingController;
 use App\Http\Controllers\Web\Backend\Settings\SocialSettingController;
@@ -91,7 +92,6 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/order/status/{id}', [OrderController::class, 'status'])->name('admin.order.status');
 
     Route::get('order/view/{id}',  [OrderController::class, 'show'])->name('admin.order.show');
-
 });
 
 
@@ -107,7 +107,6 @@ Route::middleware(['auth:web'])->group(function () {
 
     Route::get('product/variant/{id}', [ProductController::class, 'variant'])->name('admin.product.variant');
     Route::get('product/variant/delete/{id}', [ProductController::class, 'destroyVariant'])->name('admin.product.variant.destroy');
-
 });
 
 
@@ -120,8 +119,6 @@ Route::middleware(['auth:web'])->group(function () {
     Route::put('book/update/{id}', [BookController::class, 'update'])->name('admin.book.update');
     Route::get('book/delete/{id}', [BookController::class, 'destroy'])->name('admin.book.destroy');
     Route::post('/book/status/{id}', [BookController::class, 'status'])->name('admin.book.status');
-
-
 });
 
 
@@ -144,6 +141,19 @@ Route::controller(PlanfeatureController::class)->group(function () {
     Route::get('/planfeatures/edit/{id}', 'edit')->name('admin.planfeatures.edit');
     Route::put('/planfeatures/{id}', 'update')->name('admin.planfeatures.update');
     Route::delete('/planfeatures/{id}', 'destroy')->name('admin.planfeatures.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Professionals Management Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:web'])->group(function () {
+    Route::get('/professionals', [ProfessionalsManageController::class, 'index'])->name('professionals.index');
+    Route::get('/professionals/get-data', [ProfessionalsManageController::class, 'getData'])->name('professionals.get.data');
+    Route::get('/professionals/{id}', [ProfessionalsManageController::class, 'show'])->name('professionals.show');
+    Route::post('/professionals/{id}/toggle-status', [ProfessionalsManageController::class, 'toggleStatus'])->name('professionals.toggle.status');
+    Route::post('/professionals/toggle-premium/{id}', [ProfessionalsManageController::class, 'togglePremium'])->name('professionals.toggle.premium');
 });
 
 
@@ -231,9 +241,7 @@ Route::prefix('cms')->name('admin.cms.')->group(function () {
         Route::patch('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
         Route::get('/{id}/status', 'status')->name('status');
-
     });
-
 });
 
 //! Route for Profile Settings
