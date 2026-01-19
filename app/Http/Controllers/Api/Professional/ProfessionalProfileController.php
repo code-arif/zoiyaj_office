@@ -142,8 +142,8 @@ class ProfessionalProfileController extends Controller
             'working_hours'              => 'required|array|size:7',
             'working_hours.*.day'        => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
             'working_hours.*.is_closed'  => 'required|boolean',
-            'working_hours.*.open_time'  => 'nullable|required_if:working_hours.*.is_closed,false|date_format:H:i',
-            'working_hours.*.close_time' => 'nullable|required_if:working_hours.*.is_closed,false|date_format:H:i|after:working_hours.*.open_time',
+            'working_hours.*.open_time'  => 'nullable|string',
+            'working_hours.*.close_time' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
