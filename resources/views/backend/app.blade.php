@@ -14,7 +14,7 @@ $settings = \App\Models\Setting::first();
     <meta name="author" content="{{ $settings->author ?? '' }}">
     <meta name="keywords" content="{!! strip_tags($settings->keywords ?? '') !!}">
     <!-- FAVICON -->
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset($settings->favicon ?? 'default/logo.png') }}" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset($settings->favicon ?? 'default/favicon.png') }}" />
 
     <!-- TITLE -->
     <title> @yield('title') </title>

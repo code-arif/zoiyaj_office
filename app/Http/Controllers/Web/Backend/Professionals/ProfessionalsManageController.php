@@ -165,7 +165,7 @@ class ProfessionalsManageController extends Controller
 
                     $color = $statusColors[$data->status] ?? 'secondary';
                     $premiumBadge = $data->is_premium
-                        ? ' <span class="badge bg-warning ms-1"><i class="fe fe-star"></i> Premium</span>'
+                        ? ' <span class="badge bg-warning ms-1 p-1"><i class="fe fe-star" style="font-size:14px"></i> Premium</span>'
                         : '';
 
                     return '<span class="badge p-3 bg-' . $color . '">' . e(ucfirst($data->status)) . '</span>' . $premiumBadge;
