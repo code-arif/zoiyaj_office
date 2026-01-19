@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('splash', [SplashController::class, 'Splash']);
+Route::get('specialty/list', [HomeController::class, 'specialty_list']);
 
 Route::get('privacy-policy', [DynamicPageController::class, 'privacyPolicy']);
 Route::get('term-conditions', [DynamicPageController::class, 'agreement']);
