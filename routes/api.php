@@ -1,6 +1,7 @@
 <?php
 //   dd
 
+use App\Http\Controllers\api\BarcodeController;
 use App\Http\Controllers\Api\Professional\PortfolioController;
 use App\Http\Controllers\Api\Professional\ProfessionalProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
@@ -90,10 +91,16 @@ Route::delete('/delete-profile', [UserProfileController::class, 'deleteProfile']
 |--------------------------------------------------------------------------
 */
 
+
 Route::middleware('auth:api')->prefix('auth')->group(function () {
 
     Route::post('/update/role', [AuthenticationController::class, 'updateRole']);
 
+});
+
+
+Route::prefix('barcode')->name('barcode')->group(function () {
+    Route::get('/', [BarcodeController::class, 'getProduct']);
 });
 
 // professional api manage
