@@ -38,24 +38,24 @@ class ProfessionalProfileController extends Controller
         $prof_info = auth('api')->user();
 
         $prof_info->update([
-            'professional_name'  => $request->professional_name,
-            'professional_phone' => $request->professional_phone,
-            'professional_email' => $request->professional_email,
-            'address'            => $request->address,
-            'latitude'           => $request->latitude,
-            'longitude'          => $request->longitude,
-            'city'               => $request->city,
-            'state'              => $request->state,
-            'postal_code'        => $request->postal_code,
-            'country'            => $request->country,
-            'bio'                => $request->bio,
+            'professional_name'  => $request->professional_name ?? null,
+            'professional_phone' => $request->professional_phone ?? null,
+            'professional_email' => $request->professional_email ?? null,
+            'address'            => $request->address ?? null,
+            'latitude'           => $request->latitude ?? null,
+            'longitude'          => $request->longitude ?? null,
+            'city'               => $request->city ?? null,
+            'state'              => $request->state ?? null,
+            'postal_code'        => $request->postal_code ?? null,
+            'country'            => $request->country ?? null,
+            'bio'                => $request->bio ?? null,
         ]);
 
         // Only return the updated business profile fields
         $prof_info = [
             'id'                 => $prof_info->id,
             'role'               => $prof_info->role,
-            'professional_name'  => $prof_info->professional_name,
+            'professional_name'  => $prof_info->professional_name ,
             'professional_phone' => $prof_info->professional_phone,
             'professional_email' => $prof_info->professional_email,
             'address'            => $prof_info->address,
