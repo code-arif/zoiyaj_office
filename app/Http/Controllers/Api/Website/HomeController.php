@@ -184,6 +184,34 @@ class HomeController extends Controller
         return $this->success($specialty, 'Specialty list retrive successfully');
     }
 
+
+
+
+    public function brand_list(Request $request)
+    {
+        $brands = DB::table('brands')->get();
+
+        if ($brands->isEmpty()) {
+            return $this->error([], 'No Brand found');
+        }
+
+        return $this->success($brands, 'Brand list retrive successfully');
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function plan_list(Request $request)
     {
         $plans = Plan::all();
