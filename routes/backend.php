@@ -3,9 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\Backend\FaqController;
 use App\Http\Controllers\Web\Backend\BookController;
-use App\Http\Controllers\Web\Backend\BrandController;
 use App\Http\Controllers\Web\Backend\PlanController;
+use App\Http\Controllers\Web\Backend\BrandController;
 use App\Http\Controllers\Web\Backend\OrderController;
+use App\Http\Controllers\Web\Backend\BookingController;
 use App\Http\Controllers\Web\Backend\ProductController;
 use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Web\Backend\UserListController;
@@ -292,3 +293,8 @@ Route::controller(DynamicPageController::class)->group(function () {
 
 // Route::resource('subscriptions-plans', PlanController::class);
 // Route::resource('planfeatures', PlanfeatureController::class);
+
+
+
+Route::get('/bookings', [BookingController::class, 'index'])->name('admin.bookings.index');
+Route::get('/bookings/data', [BookingController::class, 'getData'])->name('admin.bookings.data');
