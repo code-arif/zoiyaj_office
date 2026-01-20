@@ -27,6 +27,8 @@ use App\Http\Controllers\Web\Backend\SplashController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\User\UserPreferenceController;
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -45,6 +47,22 @@ Route::get('term-conditions', [DynamicPageController::class, 'agreement']);
 | Guest Routes (No Auth Required)
 |--------------------------------------------------------------------------
 */
+
+
+//*****Rayhan is create in CRUD============================================================ */
+
+
+ //🔥 USER PREFERENCES CRUD
+Route::get('/user/preferences', [UserPreferenceController::class, 'index']); // List by user_id
+Route::post('/user/preferences', [UserPreferenceController::class, 'store']); // Insert
+Route::put('/user/preferences', [UserPreferenceController::class, 'update']); // Update by user_id
+Route::delete('/user/preferences', [UserPreferenceController::class, 'destroy']); // Delete by user_id
+
+
+     //*****Rayhan is create in CRUD============================================================ */
+
+
+
 
 Broadcast::routes([
     'middleware' => ['auth:api'], // or 'auth:jwt' depending on guard
@@ -65,6 +83,11 @@ Route::group(['middleware' => 'guest:api'], function () {
     // Social Login
     Route::post('social/signin/{provider}', [SocialLoginController::class, 'socialSignin']);
 
+  
+
+
+
+
 });
 
 //  user  manage
@@ -80,6 +103,8 @@ Route::middleware('auth:api')->group(function () {
 
     // reset password
     Route::post('/user/password/reset', [UserManageController::class, 'reset_password']);
+
+
 
 });
 

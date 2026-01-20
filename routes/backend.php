@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\Backend\SpecialtyController;
 use App\Http\Controllers\Web\Backend\ChatManageController;
 use App\Http\Controllers\Web\Backend\CMS\BannerController;
 use App\Http\Controllers\Web\Backend\CMS\AboutUsController;
+use App\Http\Controllers\Web\Backend\CMS\UserPreferenceController;
 use App\Http\Controllers\Web\backend\PlanfeatureController;
 use App\Http\Controllers\Web\Backend\TestimonialController;
 use App\Http\Controllers\Web\Backend\CMS\AuthPageController;
@@ -233,6 +234,24 @@ Route::prefix('cms')->name('admin.cms.')->group(function () {
         Route::get('/{id}/status', 'status')->name('status');
 
     });
+
+
+    //user prerfrencee
+
+Route::prefix('admin/cms/admin/user-preferences')
+    ->name('admin.cms.admin.user_preferences.')
+    ->controller(UserPreferenceController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::patch('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::get('/{id}/status', 'status')->name('status');
+    });
+
+
 
 });
 
