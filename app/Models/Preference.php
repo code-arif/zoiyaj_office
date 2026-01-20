@@ -13,4 +13,11 @@ class Preference extends Model
         'type',
         'name'
     ];
+
+
+    protected $hidden = ['created_at', 'updated_at'];
+
+
+
+
 }

@@ -22,7 +22,13 @@ class UserPreference extends Model
         'skin_type',
         'hair_type',
         'hair_texture',
+        'preference_id',
+        'type',
     ];
+
+    protected $hidden = ['created_at', 'updated_at', 'allergies', 'ingredients_to_avoid', 'ethical_preferences' , 'skin_type', 'hair_type', 'hair_texture'];
+
+
 
 
     // Relation with User
@@ -30,4 +36,11 @@ class UserPreference extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function preference()
+    {
+        return $this->belongsTo(Preference::class);
+    }
+
+
 }
