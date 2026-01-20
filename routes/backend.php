@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Web\Backend\UserListController;
 use App\Http\Controllers\Web\Backend\DashboardController;
 use App\Http\Controllers\Web\Backend\SpecialtyController;
+use App\Http\Controllers\Web\Backend\PreferenceController;
 use App\Http\Controllers\Web\Backend\ChatManageController;
 use App\Http\Controllers\Web\Backend\CMS\BannerController;
 use App\Http\Controllers\Web\Backend\CMS\AboutUsController;
@@ -61,6 +62,37 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/specialty/status/{id}', [SpecialtyController::class, 'status'])->name('admin.specialty.status');
 });
 
+
+
+//
+
+Route::middleware(['auth:web'])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('preferences', [PreferenceController::class, 'index'])
+        ->name('preferences.index');
+
+    Route::get('preferences/create', [PreferenceController::class, 'create'])
+        ->name('preferences.create');
+
+    Route::post('preferences/store', [PreferenceController::class, 'store'])
+        ->name('preferences.store');
+
+    Route::get('preferences/edit/{id}', [PreferenceController::class, 'edit'])
+        ->name('preferences.edit');
+
+    Route::post('preferences/update/{id}', [PreferenceController::class, 'update'])
+        ->name('preferences.update');
+
+    Route::delete('preferences/delete/{id}', [PreferenceController::class, 'destroy'])
+        ->name('preferences.destroy');
+
+});
+
+
+
+
+///
+
 Route::middleware(['auth:web'])->group(function () {
     Route::get('brand', [BrandController::class, 'index'])->name('admin.brand.index');
     Route::get('brand/create', [BrandController::class, 'create'])->name('admin.brand.create');
@@ -92,7 +124,6 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/order/status/{id}', [OrderController::class, 'status'])->name('admin.order.status');
 
     Route::get('order/view/{id}',  [OrderController::class, 'show'])->name('admin.order.show');
-
 });
 
 
@@ -108,7 +139,6 @@ Route::middleware(['auth:web'])->group(function () {
 
     Route::get('product/variant/{id}', [ProductController::class, 'variant'])->name('admin.product.variant');
     Route::get('product/variant/delete/{id}', [ProductController::class, 'destroyVariant'])->name('admin.product.variant.destroy');
-
 });
 
 
@@ -121,8 +151,6 @@ Route::middleware(['auth:web'])->group(function () {
     Route::put('book/update/{id}', [BookController::class, 'update'])->name('admin.book.update');
     Route::get('book/delete/{id}', [BookController::class, 'destroy'])->name('admin.book.destroy');
     Route::post('/book/status/{id}', [BookController::class, 'status'])->name('admin.book.status');
-
-
 });
 
 
@@ -232,27 +260,26 @@ Route::prefix('cms')->name('admin.cms.')->group(function () {
         Route::patch('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
         Route::get('/{id}/status', 'status')->name('status');
-
     });
 
 
-    //user prerfrencee
+    // user prerfrencee
 
-Route::prefix('admin/cms/admin/user-preferences')
-    ->name('admin.cms.admin.user_preferences.')
-    ->controller(UserPreferenceController::class)
-    ->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/create', 'create')->name('create');
-        Route::post('/', 'store')->name('store');
-        Route::get('/{id}/edit', 'edit')->name('edit');
-        Route::patch('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
-        Route::get('/{id}/status', 'status')->name('status');
-    });
+    // Route::prefix('admin/cms/admin/user-preferences')
+    //     ->name('admin.cms.admin.user_preferences.')
+    //     ->controller(UserPreferenceController::class)
+    //     ->group(function () {
+    //         Route::get('/', 'index')->name('index');
+    //         Route::get('/create', 'create')->name('create');
+    //         Route::post('/', 'store')->name('store');
+    //         Route::get('/{id}/edit', 'edit')->name('edit');
+    //         Route::patch('/{id}', 'update')->name('update');
+    //         Route::delete('/{id}', 'destroy')->name('destroy');
+    //         Route::get('/{id}/status', 'status')->name('status');
+    //     });
 
 
-
+    
 });
 
 //! Route for Profile Settings
