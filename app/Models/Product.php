@@ -20,6 +20,7 @@ class Product extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'ingredients' => 'array',
     ];
 
     public function category()
