@@ -24,4 +24,9 @@ class ProfessinalService extends Model
     {
         return $this->hasMany(ServiceBooking::class, 'service_id', 'id');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(ServiceReview::class, 'service_id', 'id');
+    }
 }

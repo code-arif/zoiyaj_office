@@ -206,4 +206,6 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(ServiceBooking::class, 'user_id', 'id');
     }
+
+    
 }

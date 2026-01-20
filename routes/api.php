@@ -236,13 +236,18 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(function () 
 {
     Route::post('/service', [\App\Http\Controllers\Api\BookingController::class, 'bookService']);
-    Route::get('/user', [\App\Http\Controllers\Api\BookingController::class, 'getUserBookings']);
-    
+    Route::get('/client/bookings', [\App\Http\Controllers\Api\BookingController::class, 'getClientBookings']);
+    Route::post('/cancel/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'cancelBooking']);
+    Route::post('/complete/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'completeBooking']);
+
+    Route::get('/client/reviews', [\App\Http\Controllers\Api\BookingController::class, 'getClientReviewBookings']);
+    Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
 });
 
 Route::middleware(['auth:professional', 'role:professional'])->prefix('booking')->group(function () 
 {
     Route::get('/professional', [\App\Http\Controllers\Api\BookingController::class, 'getProfessionalBookings']);
-    Route::post('/update/status', [\App\Http\Controllers\Api\BookingController::class, 'updateBookingStatus']);
-    
+    Route::post('/approve/booking', [\App\Http\Controllers\Api\BookingController::class, 'approveBooking']);
+    Route::post('/cancel/pro/booking', [\App\Http\Controllers\Api\BookingController::class, 'cancelBooking']);
+    Route::post('/complete/pro/booking', [\App\Http\Controllers\Api\BookingController::class, 'completeBooking']);
 });
