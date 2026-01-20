@@ -134,7 +134,12 @@ class ProfileSetupController extends Controller
         $data = [
             'id'                          => $user->id,
             'role'                        => $user->role,
+            'profile_completed'           => "10%",
             'avatar'                      => $user->avatar,
+            'first_name'                  => $user->first_name,
+            'last_name'                   => $user->last_name,
+            'email'                       => $user->email,
+            'phone_number'                => $user->phone_number,
             'age'                         => $user->age,
             'is_wheelchair_accessibility' => $user->is_wheelchair_accessibility,
             'is_hijab_friendly'           => $user->is_hijab_friendly,
