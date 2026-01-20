@@ -81,7 +81,7 @@ public static function uploadImage($file, $folder)
         return false;
     }
 
-    public function openAiChat(string $prompt, array $context = []): ?string
+    public static function openAiChat(string $prompt, array $context = []): ?string
 {
     try {
         $user = auth('api')->user();
