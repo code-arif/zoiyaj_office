@@ -232,3 +232,17 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
     Route::post('/create/checkout-session', [PhysicalOrderController::class, 'createCheckoutSession']);
 
 });
+
+Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(function () 
+{
+    Route::post('/service', [\App\Http\Controllers\Api\BookingController::class, 'bookService']);
+    Route::get('/user', [\App\Http\Controllers\Api\BookingController::class, 'getUserBookings']);
+    
+});
+
+Route::middleware(['auth:professional', 'role:professional'])->prefix('booking')->group(function () 
+{
+    Route::get('/professional', [\App\Http\Controllers\Api\BookingController::class, 'getProfessionalBookings']);
+    Route::post('/update/status', [\App\Http\Controllers\Api\BookingController::class, 'updateBookingStatus']);
+    
+});
