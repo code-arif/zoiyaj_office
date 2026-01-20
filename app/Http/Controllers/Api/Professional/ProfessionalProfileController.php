@@ -2,11 +2,11 @@
 namespace App\Http\Controllers\Api\Professional;
 
 use App\Helper\Helper;
-use App\Http\Controllers\Controller;
-use App\Models\ProfessionalBrand;
-use App\Models\ProfessionalSpecialty;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\ProfessionalBrand;
+use App\Http\Controllers\Controller;
+use App\Models\ProfessionalSpecialty;
 use Illuminate\Support\Facades\Validator;
 
 class ProfessionalProfileController extends Controller

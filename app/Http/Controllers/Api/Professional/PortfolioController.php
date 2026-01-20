@@ -1,11 +1,12 @@
 <?php
 namespace App\Http\Controllers\Api\Professional;
 
+
 use App\Helper\Helper;
-use App\Http\Controllers\Controller;
-use App\Models\ProfessionalPortfolio;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\ProfessionalPortfolio;
 use Illuminate\Support\Facades\Validator;
 
 class PortfolioController extends Controller
