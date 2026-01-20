@@ -1,6 +1,7 @@
 <?php
 namespace App\Events;
 
+use App\Providers\AppServiceProvider;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
