@@ -99,7 +99,7 @@
                     </a>
                 </li>
 
-                <li class="slide">
+                {{-- <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('book') ? 'has-link' : '' }}"
                         href="{{ route('admin.book.index') }}">
 
@@ -111,7 +111,7 @@
 
                         <span class="side-menu__label">Books</span>
                     </a>
-                </li>
+                </li> --}}
 
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('subscriptions-plans') ? 'has-link' : '' }}"

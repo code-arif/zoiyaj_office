@@ -187,6 +187,29 @@ class HomeController extends Controller
 
 
 
+
+    // preference list
+    public function preference_list(Request $request)
+    {
+        $preferences = DB::table('preferences')->get();
+
+        if ($preferences->isEmpty()) {
+            return $this->error([], 'No Preference found');
+        }
+
+        return $this->success($preferences, 'Preference list retrive successfully');
+    }
+
+
+
+
+
+
+
+
+
+
+
     public function brand_list(Request $request)
     {
         $brands = DB::table('brands')->get();
