@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Services\OpenAiChatService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,12 @@ use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class Helper
 {
+    protected $openAiChatService;
+
+  public function __construct(OpenAiChatService $openAiChatService)
+    {
+        $this->openAiChatService = $openAiChatService;
+    }
         const CHUNK_SIZE = 5 * 1024 * 1024;
 
     //! File or Image Upload
@@ -38,6 +45,37 @@ class Helper
             unlink($path);
         }
     }
+
+    public static function openAiChat(string $prompt, array $context = []): ?string
+{
+    try {
+        $user = auth('api')->user();
+        if (!$user) return null;
+
+        $chatResponse = $this->openAiChatService->getChatResponse($user->id, $prompt, $context);
+
+        if (!$chatResponse['success']) {
+            Log::error('OpenAI API failed', [
+                'user_id' => $user->id,
+                'prompt' => $prompt,
+                'api_error' => $chatResponse['error'] ?? 'Unknown',
+                'raw_response' => $chatResponse
+            ]);
+            return null;
+        }
+
+        // Return AI response as single string
+        return $chatResponse['response'] ?? null;
+
+    } catch (\Exception $e) {
+        Log::error('OpenAiChatController@openAiChat Exception', [
+            'user_id' => $user->id ?? null,
+            'prompt' => $prompt,
+            'exception_message' => $e->getMessage(),
+        ]);
+        return null;
+    }
+}
 
     //! Generate Slug
     public static function makeSlug($model, string $title): string

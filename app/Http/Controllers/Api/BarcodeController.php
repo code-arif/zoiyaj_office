@@ -2,12 +2,26 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\OpenAiChatController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Services\OpenAiChatService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Log;
+use Illuminate\Support\Facades\Validator;
 
 class BarcodeController extends Controller
 {
+    protected $openAiChatService;
+
+
+
+
+
+
 
     public function getProduct()
     {
@@ -15,19 +29,18 @@ class BarcodeController extends Controller
 
         $response = Http::get("https://world.openbeautyfacts.org/api/v2/product/{$barcode}");
 
-
-
         if (!$response->successful()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Product not found or API error'
-            ], 404);
-        }
+                ], 404);
+                }
 
-        $data = $response->json();
+                $data = $response->json();
 
         $product = $data['product'] ?? null;
 
+        $ai = Helper::openAiChat($product['ingredients_text'] ?? '');
 
 
         if (!$product) {
@@ -84,19 +97,20 @@ class BarcodeController extends Controller
             'name' => $product['product_name'] ?? 'Unknown',
             'brands' => $product['brands'] ?? 'Unknown',
             'categories' => $product['categories'] ?? [],
-            'ingredients_text' => $product['ingredients_text'] ?? 'Not listed',
             'ingredients' => $ingredients,
             'image' => $image,
             'alerts' => $alerts,
             'description' => $product['description'] ?? $product['generic_name'] ?? null,
             'reviews' => $product['reviews'] ?? [], // if available
-            'similar_products' => $similarProducts
+            'similar_products' => $similarProducts,
+            'ai_summary' => $ai ?? null,
         ];
 
         return response()->json([
             'status' => true,
             'message' => "Beauty Product Info Retrieved Successfully",
             'data' => $result,
+
         ]);
     }
 }
