@@ -21,26 +21,40 @@ class ProfileController extends Controller
         return view('backend.layouts.settings.profile_settings', compact('user'));
     }
 
-    public function UpdateProfile(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name'  => 'nullable|max:100|min:2',
-            'email' => 'nullable|email|unique:users,email,' . auth()->user()->id,
-        ]);
+public function UpdateProfile(Request $request)
+{
+    // Validate request
+    $validator = Validator::make($request->all(), [
+        'name'  => 'nullable|string|min:2|max:100',
+        'email' => 'nullable|email|unique:users,email,' . auth()->id(),
+    ]);
 
+   
 
-        try {
-            $user        = User::find(auth()->user()->id);
-            $user->name  = $request->name;
-            $user->email = $request->email;
+    try {
+        $user = auth()->user();
 
-            $user->save();
-            session()->put('t-success', 'Profile updated successfully');
-        } catch (Exception) {
-            session()->put('t-error', 'Something went wrong');
+        if ($request->filled('name')) {
+            $user->name = $request->name;
         }
-        return redirect()->back();
+
+        if ($request->filled('email')) {
+            $user->email = $request->email;
+        }
+
+        $user->save();
+
+        session()->put('t-success', 'Profile updated successfully');
+    } catch (Exception $e) {
+        // Log the error
+        Log::error('Profile update error: '.$e->getMessage());
+
+        // Return exact error message to the user
+        return redirect()->back()->with('t-error', $e->getMessage());
     }
+
+    return redirect()->back();
+}
     public function UpdatePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
