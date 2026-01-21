@@ -300,7 +300,9 @@ public static function uploadImage($file, $folder)
         }
     }
 
-    public static function sendNotifyMobile($token, $notifyData): void
+
+
+       public static function sendNotifyMobile($token, $notifyData): void
     {
         $path = storage_path('app/private/curio-blvd-firebse-token.json');
         $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
