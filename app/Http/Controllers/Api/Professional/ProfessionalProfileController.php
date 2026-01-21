@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api\Professional;
 
-use App\Helper\Helper;
+use App\Helpers\Helper;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\ProfessionalBrand;

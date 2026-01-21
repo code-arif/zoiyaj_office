@@ -1,14 +1,14 @@
 <?php
 namespace App\Http\Controllers\Api\Client;
 
-use App\Helper\Helper;
-use App\Http\Controllers\Controller;
+use Throwable;
+use App\Helpers\Helper;
 use App\Models\Preference;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use Throwable;
 
 class ProfileSetupController extends Controller
 {
