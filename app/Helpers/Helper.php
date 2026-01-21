@@ -300,25 +300,37 @@ public static function uploadImage($file, $folder)
         }
     }
 
-     public static function sendNotifyMobile($token, $notifyData): void
-      {
-          try {
-              $messaging = Firebase::messaging();
+    public static function sendNotifyMobile($token, $notifyData): void
+    {
+        $path = storage_path('app/private/curio-blvd-firebse-token.json');
+        $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
 
-              $notification = Notification::create(
-                  $notifyData['title'],
-                  Str::limit($notifyData['body'], 100),
-                  $notifyData['icon']
-              );
+        if (!file_exists($path) || !is_readable($path)) {
+            throw new \Exception("Firebase JSON file does not exist or is not readable: $path");
+        }
 
-              $message = CloudMessage::withTarget('token', $token)
-                  ->withNotification($notification);
+        $factory = (new \Kreait\Firebase\Factory)
+            ->withServiceAccount($path);
 
-              $messaging->send($message);
+        $messaging = $factory->createMessaging();
 
-          } catch (\Throwable $e) {
-              Log::error($e->getMessage());
-          }
-      }
+        $notification = \Kreait\Firebase\Messaging\Notification::create(
+            $notifyData['title'],
+            \Illuminate\Support\Str::limit($notifyData['body'], 100),
+            $notifyData['icon'] ?? null
+        );
+
+        $message = \Kreait\Firebase\Messaging\CloudMessage::withTarget('token', $token)
+            ->withNotification($notification);
+
+        try {
+            $messaging->send($message);
+        } catch (\Kreait\Firebase\Exception\MessagingException $e) {
+            Log::error('FCM error', [
+                'message' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
 
 }
