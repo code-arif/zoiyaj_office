@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Services\OpenAiChatService;
+use App\Services\SuggestProductService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -83,11 +84,55 @@ public static function uploadImage($file, $folder)
 
     public static function openAiChat(string $prompt, array $context = []): ?string
 {
+
     try {
         $user = auth('api')->user();
-        if (!$user) return null;
 
-        $chatResponse = $this->openAiChatService->getChatResponse($user->id, $prompt, $context);
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $chatResponse = app(OpenAiChatService::class)->getChatResponse($user->id, $prompt, $context);
+
+        if (!$chatResponse['success']) {
+            Log::error('OpenAI API failed', [
+                'user_id' => $user->id,
+                'prompt' => $prompt,
+                'api_error' => $chatResponse['error'] ?? 'Unknown',
+                'raw_response' => $chatResponse
+            ]);
+            return null;
+        }
+
+        // Return AI response as single string
+        return $chatResponse['response'] ?? null;
+
+    } catch (\Exception $e) {
+        Log::error('OpenAiChatController@openAiChat Exception', [
+            'user_id' => $user->id ?? null,
+            'prompt' => $prompt,
+            'exception_message' => $e->getMessage(),
+        ]);
+        return null;
+    }
+}
+    public static function suggestService(string $prompt, array $context): ?string
+{
+
+    try {
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $chatResponse = app(SuggestProductService::class)->getChatResponse($user->id, $prompt, $context);
 
         if (!$chatResponse['success']) {
             Log::error('OpenAI API failed', [

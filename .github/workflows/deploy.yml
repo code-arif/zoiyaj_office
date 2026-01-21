@@ -14,8 +14,8 @@ jobs:
       - name: FTP-Deploy-Action
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          server: ftp.thewarriors.team
-          username:  zoiyaj@zoiyaj.thewarriors.team
-          password: "kP+p4MR(iDXT,%sh"
+          server: 76.13.96.223
+          username:  zoyez
+          password: "S1Oxm5WlojOqr5b5uPID"
 
 

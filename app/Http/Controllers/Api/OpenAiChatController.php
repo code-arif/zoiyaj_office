@@ -64,6 +64,7 @@ class OpenAiChatController extends Controller
             $errorMessage = $chatResponse['error'] ?? ($chatResponse['response'] ?? 'Unknown error');
 
             // Log detailed error for debugging
+            
             Log::error('OpenAI API failed', [
                 'user_id' => $user->id,
                 'prompt' => $prompt,
