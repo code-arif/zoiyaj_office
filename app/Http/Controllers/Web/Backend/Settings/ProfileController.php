@@ -28,9 +28,7 @@ class ProfileController extends Controller
             'email' => 'nullable|email|unique:users,email,' . auth()->user()->id,
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+
         try {
             $user        = User::find(auth()->user()->id);
             $user->name  = $request->name;
