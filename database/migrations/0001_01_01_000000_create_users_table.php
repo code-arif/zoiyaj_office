@@ -40,6 +40,9 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index(['first_name', 'email']); // For user search
+            $table->index(['last_activity_at']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

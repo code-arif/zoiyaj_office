@@ -26,8 +26,7 @@ return new class extends Migration
 
             // for unique
             $table->unique(['first_user_id', 'second_user_id']);
-
-
+            $table->index(['created_at']);
         });
     }
 

@@ -201,10 +201,12 @@ Route::middleware(['auth:web'])->group(function () {
 
 
 
-
-
+/*
+|--------------------------------------------------------------------------
+| Admin chat route
+|--------------------------------------------------------------------------
+*/
 Route::controller(ChatManageController::class)->prefix('chat')->name('admin.chat.')->group(function () {
-
     Route::get('/', 'index')->name('index');
     Route::get('/list', 'list')->name('list');
     Route::post('/send/{receiver_id}', 'send')->name('send');

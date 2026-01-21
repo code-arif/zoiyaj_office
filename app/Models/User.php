@@ -7,6 +7,7 @@ use App\Models\Specialty;
 use Laravel\Cashier\Billable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -220,8 +221,37 @@ class User extends Authenticatable implements JWTSubject
     public function preferences()
     {
         return $this->hasMany(UserPreference::class, 'user_id', 'id');
-
     }
 
+    /**
+     * Messages sent by this user
+     */
+    public function senders(): HasMany
+    {
+        return $this->hasMany(Chat::class, 'sender_id');
+    }
 
+    /**
+     * Messages received by this user
+     */
+    public function receivers(): HasMany
+    {
+        return $this->hasMany(Chat::class, 'receiver_id');
+    }
+
+    /**
+     * Rooms where user is first user
+     */
+    public function firstUserRooms(): HasMany
+    {
+        return $this->hasMany(Room::class, 'first_user_id');
+    }
+
+    /**
+     * Rooms where user is second user
+     */
+    public function secondUserRooms(): HasMany
+    {
+        return $this->hasMany(Room::class, 'second_user_id');
+    }
 }

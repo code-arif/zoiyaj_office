@@ -30,6 +30,8 @@ return new class extends Migration
 
             // Index for quicker querying
             $table->index(['sender_id', 'receiver_id']);
+            $table->index(['room_id', 'created_at']); // For fetching room messages
+            $table->index(['created_at']); // For sorting by time
         });
     }
 
