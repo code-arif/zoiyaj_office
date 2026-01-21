@@ -15,7 +15,7 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
           server: 76.13.96.223
-          username: zoyez
+          username:  zoyez
           password: "S1Oxm5WlojOqr5b5uPID"
 
 

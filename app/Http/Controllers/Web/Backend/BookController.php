@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Web\Backend;
 
-use App\Helper\Helper;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\BookCategory;
@@ -20,6 +20,7 @@ class BookController extends Controller
 
         if ($request->ajax()) {
             $data = Book::with(['book_categories.category'])->get();
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('cover_image', function ($data) {

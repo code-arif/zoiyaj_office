@@ -18,11 +18,6 @@ class BarcodeController extends Controller
     protected $openAiChatService;
 
 
-
-
-
-
-
     public function getProduct()
     {
         $barcode = request()->query('barcode');
@@ -40,7 +35,12 @@ class BarcodeController extends Controller
 
         $product = $data['product'] ?? null;
 
-        $ai = Helper::openAiChat($product['ingredients_text'] ?? '');
+
+        $ai =  Helper::openAiChat($product['ingredients_text'] ?? '');
+
+        $sugeest_similar =  Helper::suggestService($product['ingredients_text'] ?? '', []);
+
+        $sugeest_similar = json_decode( $sugeest_similar);
 
 
         if (!$product) {
@@ -102,7 +102,7 @@ class BarcodeController extends Controller
             'alerts' => $alerts,
             'description' => $product['description'] ?? $product['generic_name'] ?? null,
             'reviews' => $product['reviews'] ?? [], // if available
-            'similar_products' => $similarProducts,
+            'similar_products' => $sugeest_similar,
             'ai_summary' => $ai ?? null,
         ];
 
