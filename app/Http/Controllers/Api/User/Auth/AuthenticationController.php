@@ -1,16 +1,18 @@
 <?php
 namespace App\Http\Controllers\Api\User\Auth;
 
-use App\Http\Controllers\Controller;
+use Exception;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Traits\ApiResponse;
-use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Mail\RegisterOtpMail;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class AuthenticationController extends Controller
@@ -52,7 +54,7 @@ class AuthenticationController extends Controller
             ]);
 
             // Try to send mail
-            // Mail::to($user->email)->send(new RegisterOtpMail($otp, $user));
+             Mail::to($user->email)->send(new RegisterOtpMail($otp, $user));
 
             // If everything is fine, commit
             DB::commit();

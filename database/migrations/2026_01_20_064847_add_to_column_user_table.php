@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('age')->nullable()->after('phone_number');
+            $table->boolean('is_wheelchair_accessibility')->default(false)->after('age');
+            $table->boolean('is_hijab_friendly')->default(false)->after('is_wheelchair_accessibility');
+            $table->boolean('is_prone')->default(false)->after('is_hijab_friendly');
+
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
+    }
+};

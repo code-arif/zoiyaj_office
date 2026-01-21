@@ -21,8 +21,8 @@ return new class extends Migration
                 'sunday',
             ])->index();
             $table->boolean('is_closed')->default(false);
-            $table->time('open_time')->nullable();
-            $table->time('close_time')->nullable();
+            $table->string('open_time')->nullable();
+            $table->string('close_time')->nullable();
             $table->timestamps();
 
             // Unique
