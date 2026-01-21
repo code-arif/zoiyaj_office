@@ -29,7 +29,7 @@ public function UpdateProfile(Request $request)
         'email' => 'nullable|email|unique:users,email,' . auth()->id(),
     ]);
 
-   
+
 
     try {
         $user = auth()->user();
@@ -47,7 +47,6 @@ public function UpdateProfile(Request $request)
         session()->put('t-success', 'Profile updated successfully');
     } catch (Exception $e) {
         // Log the error
-        Log::error('Profile update error: '.$e->getMessage());
 
         // Return exact error message to the user
         return redirect()->back()->with('t-error', $e->getMessage());
