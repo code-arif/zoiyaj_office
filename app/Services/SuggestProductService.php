@@ -44,42 +44,48 @@ class SuggestProductService
     /**
      * Build FAST & MINIMAL messages
      */
-    protected function buildMessages(string $prompt): array
-    {
-        $systemPrompt = <<<SYSTEM
+   protected function buildMessages(string $prompt): array
+{
+    $systemPrompt = <<<SYSTEM
 You are a cosmetic product assistant.
 
 Analyze only the provided ingredients.
 Return valid JSON ONLY, plain text.
 
 STRICT RULES:
-- must be 1 to 5 reviews only
-- each review must have name, stars (1-5), comment, date, helpful
-- descriptions mmust be exactly 40 words
+- Generate between 1 and 5 reviews. The exact number is up to you.
+- Each review must include: name, stars (1-5), comment, date, helpful.
+- descriptions must be exactly 40 words.
+- total_reviews = number of reviews you generated.
+- total_rating = average of the review stars.
 
 JSON format:
 {
 "alerts": "key concerns",
-  "ai_summary": "short summary ( 100 words)",
-  "total_rating": 1-5 (average rating),
-  "total_reviews": number,
-  "overview": {
-    "descriptions": "overview",
+"ai_summary": "short summary (max 100 words)",
+"total_rating": number,
+"total_reviews": number,
+"overview": {
+    "descriptions": "overview exactly 40 words",
     "how_to_use": "steps (max 50 words)",
     "warnings": "sensitivities (max 50 words)"
-  },
-  "ingredients": [{"name":"", "description":"", "tags":["Safe"]}],
-  "reviews": [{"name":"", "stars":1-5,"comment":"","date":"","helpful":0}]
+},
+"ingredients": [{"name":"", "description":"", "tags":["Safe"]}],
+"reviews": [
+  {"name":"","stars":1-5,"comment":"","date":"","helpful":0}
+]
 }
-- If generating the full response takes too long, shorten the text in fields like ai_summary, overview.descriptions, how_to_use, warnings, etc., but do not remove any fields or reviews.
 
+- Do NOT add extra fields.
+- If generating the full response takes too long, shorten text in fields like ai_summary, overview.descriptions, how_to_use, warnings, but do not remove any fields or reviews.
 SYSTEM;
 
-        return [
-            ['role' => 'system', 'content' => $systemPrompt],
-            ['role' => 'user', 'content' => $prompt],
-        ];
-    }
+    return [
+        ['role' => 'system', 'content' => $systemPrompt],
+        ['role' => 'user', 'content' => $prompt],
+    ];
+}
+
 
     /**
      * Call OpenAI API (FAST CONFIG)
