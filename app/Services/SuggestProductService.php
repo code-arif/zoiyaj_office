@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Run;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SuggestProductService
 {
@@ -18,217 +17,72 @@ class SuggestProductService
     }
 
     /**
-     * Get AI chat response with beauty product analysis.
+     * Main product analysis (TEXT ONLY)
      */
-    public function getChatResponse($userId, $prompt, $context = [])
+    public function getChatResponse(int $userId, string $prompt): array
     {
         try {
-            $messages = $this->buildMessages($prompt, $context);
+            $messages = $this->buildMessages($prompt);
 
-            $response = $this->callOpenAi($messages, 'gpt-4');
-
-            if (!$response['successful']) {
-                return [
-                    'success' => false,
-                    'error' => $response['error'] ?? 'API request failed'
-                ];
-            }
-
-            $data = $response['data'];
-
-            // Extract text from OpenAI response
-            $text = $data['choices'][0]['message']['content'] ?? '';
-
-            if (empty($text)) {
-                Log::error('Empty response from OpenAI API', ['data' => $data]);
-                return [
-                    'success' => false,
-                    'error' => 'Empty response from API'
-                ];
-            }
-
-            // Clean up markdown code blocks if present
-            $text = preg_replace('/```json\s*/', '', $text);
-            $text = preg_replace('/\s*```/', '', $text);
-            $text = trim($text);
-
-            // Validate it's valid JSON
-            $testDecode = json_decode($text, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::error('Invalid JSON from OpenAI', [
-                    'json_error' => json_last_error_msg(),
-                    'text' => substr($text, 0, 500)
-                ]);
-                return [
-                    'success' => false,
-                    'error' => 'Invalid JSON response: ' . json_last_error_msg()
-                ];
-            }
-
-            // Return the clean JSON string
-            return [
-                'success' => true,
-                'response' => $text
-            ];
-
-        } catch (\Exception $e) {
-            Log::error('SuggestProductService error:', [
-                'user_id' => $userId,
-                'error' => $e->getMessage()
-            ]);
-
-            return [
-                'success' => false,
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * Get AI response analyzing an image (optional) + run context
-     */
-    public function getImageAnalysisResponse(int $userId, string $prompt, string $imageFullPath, array $context = []): array
-    {
-        return $this->processRequest($prompt, $imageFullPath, $context);
-    }
-
-    /**
-     * Core request handler
-     */
-    protected function processRequest(string $prompt, ?string $imageFullPath = null, array $context = []): array
-    {
-        try {
-            $messages = $this->buildMessages($prompt, $context, $imageFullPath);
-
-            $model = $imageFullPath ? 'gpt-4o' : 'gpt-4';
-
-            $response = $this->callOpenAi($messages, $model);
+            $response = $this->callOpenAi($messages, 'gpt-4.1-mini');
 
             if (!$response['successful']) {
-                return $this->errorResponse($response['error'] ?? 'Unknown error', 'AI request failed');
+                return $this->errorResponse($response['error'], 'AI request failed');
             }
 
             return $this->handleApiResponse($response['data']);
         } catch (\Exception $e) {
-            Log::error('OpenAiChatService error: ' . $e->getMessage());
-            return $this->errorResponse($e->getMessage(), 'AI request failed');
+            Log::error('SuggestProductService Error', [
+                'user_id' => $userId,
+                'error'   => $e->getMessage()
+            ]);
+
+            return $this->errorResponse($e->getMessage(), 'Unexpected error');
         }
     }
 
     /**
-     * Build messages for OpenAI, including beauty product context
+     * Build FAST & MINIMAL messages
      */
-    protected function buildMessages(string $prompt, array $context = [], ?string $imageFullPath = null): array
+    protected function buildMessages(string $prompt): array
     {
         $systemPrompt = <<<SYSTEM
-You are a beauty product suggestion and cosmetic analysis assistant.
+You are a cosmetic product assistant.
 
-Your responsibilities:
-- Analyze skincare and cosmetic product ingredients provided by the user or visible in the image (e.g., ingredients like Hyaluronic Acid: A powerful humectant that can hold up to 1000x its weight in water, providing intense hydration. Safe, Hydrating.; Vitamin C: An antioxidant that brightens skin and helps with collagen production. Safe, Hydrating.; Niacinamide: Helps minimize pores, regulate oil production, and improve skin texture. Safe, Hydrating.)
-- The ingredients details come directly from the system prompt or user input—use them as the primary source for analysis, treating them as authoritative descriptions from the product page.
-- Structure the ingredients in the response as an array of objects, each with name, description, and tags (e.g., ["Safe", "Hydrating"])
-- Generate 3 realistic customer reviews based on the product's description and ingredients
-- Each review should include a realistic name, star rating (1-5 stars), short comment, date (e.g., "1 week ago"), and helpful count (e.g., 2)
-- Provide how-to-use instructions for the product
-- Identify possible allergens, irritants, sensitivities, and dietary restrictions (e.g., vegan or non-vegan)
-- Generate a short, consumer-friendly AI summary
-- Compile a warnings section highlighting key allergens, irritants, and safety notes based on ingredients
-- Generate a concise AI summary (50 words max) as a catchy overview highlighting key benefits, rating, and star ingredients
+Analyze only the provided ingredients.
+Return valid JSON ONLY, plain text.
 
 STRICT RULES:
-- Do NOT give medical advice
-- Do NOT diagnose or treat skin conditions
-- Do NOT make clinical or pharmaceutical claims
-- Base analysis only on provided ingredients
-- Summary must be plain text, no HTML
-- Limit summary to 150 words or less
-- Limit how_to_use to 100 words or less
-- Limit warnings to 100 words or less, formatted as plain text
-- Limit ai_summary to 50 words or less
-- Return ALL output in valid JSON ONLY
-- Do NOT include markdown, explanations, or extra text
-- Use the exact JSON structure defined below
-- Do NOT send any null values, always provide data in the specified format
+- must be 4 to 5 reviews only
+- each review must have name, stars (1-5), comment, date, helpful
+- descriptions mmust be exactly 40 words
 
-REQUIRED JSON FORMAT:
+JSON format:
 {
-  "ai_summary": "string (150 words max, single paragraph)",
-  "summary": "string (50 words max, catchy overview)",
-  "ingredients": [
-    {
-      "name": "string",
-      "description": "string",
-      "tags": ["string"]
-    }
-  ],
-  "reviews": [
-    {
-      "name": "string (e.g., Emily R.)",
-      "stars": integer (1-5),
-      "comment": "string (short review text)",
-      "date": "string (e.g., 1 week ago)",
-      "helpful": integer (e.g., 2)
-    }
-  ],
-  "how_to_use": "string (100 words max, step-by-step instructions)",
-  "warnings": "string (100 words max, plain text with key allergens and safety notes)"
+"alerts": "key concerns",
+  "ai_summary": "short summary ( 100 words)",
+  "total_rating": 1-5,
+  "total_reviews": number,
+  "overview": {
+    "descriptions": "overview",
+    "how_to_use": "steps (max 50 words)",
+    "warnings": "sensitivities (max 50 words)"
+  },
+  "ingredients": [{"name":"", "description":"", "tags":["Safe"]}],
+  "reviews": [{"name":"", "stars":1-5,"comment":"","date":"","helpful":0}]
 }
+- If generating the full response takes too long, shorten the text in fields like ai_summary, overview.descriptions, how_to_use, warnings, etc., but do not remove any fields or reviews.
 
-- JSON must contain exactly 3 review objects in the array
-- No fields should be missing
-- Always reference the provided ingredients in your summary and analysis
-- Ingredients array must include name, description, and tags
 SYSTEM;
 
-        $messages = [
+        return [
             ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => $prompt],
         ];
-
-        /**
-         * USER PROMPT + OPTIONAL IMAGE
-         */
-        if ($imageFullPath) {
-            $imageData = $this->processImage($imageFullPath);
-
-            $messages[] = [
-                'role' => 'user',
-                'content' => [
-                    ['type' => 'text', 'text' => $prompt],
-                    ['type' => 'image_url', 'image_url' => $imageData],
-                ],
-            ];
-        } else {
-            $messages[] = [
-                'role' => 'user',
-                'content' => $prompt
-            ];
-        }
-
-        // Append context if provided
-        if (!empty($context)) {
-            $messages[] = ['role' => 'system', 'content' => json_encode($context)];
-        }
-
-        return $messages;
     }
 
     /**
-     * Convert image to base64 for OpenAI
-     */
-    protected function processImage(string $imageFullPath): array
-    {
-        if (!file_exists($imageFullPath)) {
-            throw new \Exception("Image file not found: $imageFullPath");
-        }
-
-        $mimeType = mime_content_type($imageFullPath);
-        $imageContent = base64_encode(file_get_contents($imageFullPath));
-
-        return ['url' => "data:$mimeType;base64,$imageContent"];
-    }
-
-    /**
-     * Call OpenAI API
+     * Call OpenAI API (FAST CONFIG)
      */
     protected function callOpenAi(array $messages, string $model): array
     {
@@ -236,22 +90,19 @@ SYSTEM;
             $payload = [
                 'model'       => $model,
                 'messages'    => $messages,
-                'temperature' => 0.6,
-                'max_tokens'  => 2000,
+                'temperature' => 0.4,
+                'max_tokens'  => 20000,
             ];
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type'  => 'application/json',
-            ])->timeout(120)->post($this->endpoint, $payload);
+            ])->timeout(30)->post($this->endpoint, $payload);
 
             if (!$response->successful()) {
-                $error = $response->json()['error']['message'] ?? $response->body();
-                Log::error("OpenAI API Error ($model)", ['error' => $error]);
-
                 return [
                     'successful' => false,
-                    'error' => $error
+                    'error' => $response->json()['error']['message'] ?? 'API error'
                 ];
             }
 
@@ -259,9 +110,9 @@ SYSTEM;
                 'successful' => true,
                 'data' => $response->json()
             ];
-
         } catch (\Exception $e) {
             Log::error('OpenAI API Exception', ['error' => $e->getMessage()]);
+
             return [
                 'successful' => false,
                 'error' => $e->getMessage()
@@ -270,29 +121,38 @@ SYSTEM;
     }
 
     /**
-     * Handle OpenAI response
+     * Clean + validate AI response
      */
     protected function handleApiResponse(array $response): array
     {
-        if (empty($response['choices'][0]['message']['content'])) {
-            Log::error('OpenAI API empty content: ' . json_encode($response));
-            return $this->errorResponse('No content in response', 'Invalid AI response structure');
-        }
+        $content = $response['choices'][0]['message']['content'] ?? '';
 
-        $content = $response['choices'][0]['message']['content'];
-
-        // Clean up markdown code blocks if present
-        $content = preg_replace('/```json\s*/', '', $content);
-        $content = preg_replace('/\s*```/', '', $content);
+        // Remove markdown if any
+        $content = preg_replace('/```json|```/', '', $content);
         $content = trim($content);
 
+        // Remove invalid characters / control chars
+        $content = preg_replace('/[\x00-\x1F\x7F]/u', '', $content);
+
+        // Remove trailing commas before closing brackets
+        $content = preg_replace('/,\s*([\]}])/m', '$1', $content);
+
+        // Decode safely
+        $data = json_decode($content, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::error('JSON parsing error', [
+                'error' => json_last_error_msg(),
+                'text'  => substr($content, 0, 1000)
+            ]);
+        }
+
+
         return [
-            'success'       => true,
-            'response'      => $content,
-            'response_type' => 'text',
-            'raw'           => $content,
+            'success'  => true,
+            'response' => $content
         ];
     }
+
 
     /**
      * Standard error response
@@ -301,8 +161,8 @@ SYSTEM;
     {
         return [
             'success' => false,
-            'response' => $message,
-            'error' => $error,
+            'message' => $message,
+            'error'   => $error
         ];
     }
 }
