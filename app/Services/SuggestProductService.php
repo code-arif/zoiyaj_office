@@ -53,7 +53,6 @@ Analyze only the provided ingredients.
 Return valid JSON ONLY, plain text.
 
 STRICT RULES:
-- Generate between 1 and 5 reviews. The exact number is up to you.
 - Each review must include: name, stars (1-5), comment, date, helpful.
 - total_reviews = number of reviews you generated.
 - total_rating = average of the review stars.
