@@ -1,7 +1,7 @@
 <?php
 //   dd
 
-use App\Http\Controllers\api\BarcodeController;
+use App\Http\Controllers\Api\BarcodeController;
 use App\Http\Controllers\Api\Client\ProfileSetupController;
 use App\Http\Controllers\Api\Professional\PortfolioController;
 use App\Http\Controllers\Api\Professional\ProfessionalProfileController;
