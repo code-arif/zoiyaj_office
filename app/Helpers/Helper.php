@@ -17,11 +17,12 @@ class Helper
 {
     protected $openAiChatService;
 
-  public function __construct(OpenAiChatService $openAiChatService)
+    public function __construct(OpenAiChatService $openAiChatService)
     {
         $this->openAiChatService = $openAiChatService;
     }
-        const CHUNK_SIZE = 5 * 1024 * 1024;
+
+    const CHUNK_SIZE = 5 * 1024 * 1024;
 
     //! File or Image Upload
     public static function fileUpload($file, string $folder, string $name): ?string
@@ -38,19 +39,20 @@ class Helper
         $file->move($path, $imageName);
         return 'uploads/' . $folder . '/' . $imageName;
     }
-public static function uploadImage($file, $folder)
+
+    public static function uploadImage($file, $folder)
     {
-        if (! $file || ! $file->isValid()) {
+        if (!$file || !$file->isValid()) {
             return null;
         }
 
         try {
-            $extension = $file->getClientOriginalExtension(); // FIX HERE
+            $extension = $file->getClientOriginalExtension();
             $imageName = time() . '-' . Str::random(5) . '.' . $extension;
 
             $path = public_path("uploads/$folder");
 
-            if (! file_exists($path)) {
+            if (!file_exists($path)) {
                 mkdir($path, 0755, true);
             }
 
@@ -62,6 +64,7 @@ public static function uploadImage($file, $folder)
             return null;
         }
     }
+
     //! File or Image Delete
     public static function fileDelete(string $path): void
     {
@@ -72,7 +75,7 @@ public static function uploadImage($file, $folder)
 
     public static function deleteImage($imageUrl)
     {
-        if (! $imageUrl) {
+        if (!$imageUrl) {
             return false;
         }
         $filePath = public_path($imageUrl);
@@ -83,80 +86,70 @@ public static function uploadImage($file, $folder)
     }
 
     public static function openAiChat(string $prompt, array $context = []): ?string
-{
+    {
+        try {
+            $user = auth('api')->user();
 
-    try {
-        $user = auth('api')->user();
+            if (!$user) {
+                return null;
+            }
 
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+            $chatResponse = app(OpenAiChatService::class)->getChatResponse($user->id, $prompt, $context);
 
-        $chatResponse = app(OpenAiChatService::class)->getChatResponse($user->id, $prompt, $context);
+            if (!$chatResponse['success']) {
+                Log::error('OpenAI API failed', [
+                    'user_id' => $user->id,
+                    'prompt' => $prompt,
+                    'api_error' => $chatResponse['error'] ?? 'Unknown',
+                    'raw_response' => $chatResponse
+                ]);
+                return null;
+            }
 
-        if (!$chatResponse['success']) {
-            Log::error('OpenAI API failed', [
-                'user_id' => $user->id,
+            return $chatResponse['response'] ?? null;
+
+        } catch (\Exception $e) {
+            Log::error('OpenAiChatController@openAiChat Exception', [
+                'user_id' => $user->id ?? null,
                 'prompt' => $prompt,
-                'api_error' => $chatResponse['error'] ?? 'Unknown',
-                'raw_response' => $chatResponse
+                'exception_message' => $e->getMessage(),
             ]);
             return null;
         }
-
-        // Return AI response as single string
-        return $chatResponse['response'] ?? null;
-
-    } catch (\Exception $e) {
-        Log::error('OpenAiChatController@openAiChat Exception', [
-            'user_id' => $user->id ?? null,
-            'prompt' => $prompt,
-            'exception_message' => $e->getMessage(),
-        ]);
-        return null;
     }
-}
+
     public static function suggestService(string $prompt, array $context): ?string
 {
-
     try {
         $user = auth('api')->user();
 
         if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
+            return json_encode(['error' => 'Unauthorized']);
         }
 
         $chatResponse = app(SuggestProductService::class)->getChatResponse($user->id, $prompt, $context);
 
         if (!$chatResponse['success']) {
-            Log::error('OpenAI API failed', [
+            Log::error('SuggestProductService API failed', [
                 'user_id' => $user->id,
                 'prompt' => $prompt,
                 'api_error' => $chatResponse['error'] ?? 'Unknown',
                 'raw_response' => $chatResponse
             ]);
-            return null;
+            return json_encode(['error' => 'API call failed']);
         }
 
-        // Return AI response as single string
-        return $chatResponse['response'] ?? null;
+        return $chatResponse['response'] ?? json_encode(['error' => 'Empty response']);
 
     } catch (\Exception $e) {
-        Log::error('OpenAiChatController@openAiChat Exception', [
+        Log::error('Helper@suggestService Exception', [
             'user_id' => $user->id ?? null,
             'prompt' => $prompt,
             'exception_message' => $e->getMessage(),
         ]);
-        return null;
+        return json_encode(['error' => $e->getMessage()]);
     }
 }
-
     //! Generate Slug
     public static function makeSlug($model, string $title): string
     {
@@ -224,10 +217,6 @@ public static function uploadImage($file, $folder)
         return response()->json($response, $code);
     }
 
-
-
-
-
     public static function video($file, string $folder, string $name): ?string
     {
         if (!$file->isValid()) {
@@ -236,12 +225,10 @@ public static function uploadImage($file, $folder)
 
         $fileSize = $file->getSize();
 
-        // If file is larger than 5MB, use chunk upload
         if ($fileSize > self::CHUNK_SIZE) {
             return self::chunkFileUpload($file, $folder, $name);
         }
 
-        // Regular upload for files <= 5MB
         return self::regularFileUpload($file, $folder, $name);
     }
 
@@ -276,12 +263,9 @@ public static function uploadImage($file, $folder)
         }
 
         try {
-            // Read and write in chunks
             while (!feof($source)) {
                 $chunk = fread($source, self::CHUNK_SIZE);
                 fwrite($dest, $chunk);
-
-                // Free up memory
                 unset($chunk);
             }
 
@@ -291,7 +275,6 @@ public static function uploadImage($file, $folder)
             return 'uploads/' . $folder . '/' . $fileName;
 
         } catch (\Exception $e) {
-            // Clean up on error
             if (is_resource($source)) fclose($source);
             if (is_resource($dest)) fclose($dest);
             if (file_exists($destination)) unlink($destination);
@@ -300,27 +283,24 @@ public static function uploadImage($file, $folder)
         }
     }
 
-     public static function sendNotifyMobile($token, $notifyData): void
-      {
-          try {
-              $messaging = Firebase::messaging();
+    public static function sendNotifyMobile($token, $notifyData): void
+    {
+        try {
+            $messaging = Firebase::messaging();
 
-              $notification = Notification::create(
-                  $notifyData['title'],
-                  Str::limit($notifyData['body'], 100),
-                  $notifyData['icon']
-              );
+            $notification = Notification::create(
+                $notifyData['title'],
+                Str::limit($notifyData['body'], 100),
+                $notifyData['icon']
+            );
 
-              $message = CloudMessage::withTarget('token', $token)
-                  ->withNotification($notification);
+            $message = CloudMessage::withTarget('token', $token)
+                ->withNotification($notification);
 
-              $messaging->send($message);
+            $messaging->send($message);
 
-          } catch (\Throwable $e) {
-              Log::error($e->getMessage());
-          }
-      }
-
-
-
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+        }
+    }
 }
