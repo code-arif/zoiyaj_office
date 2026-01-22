@@ -53,7 +53,7 @@ Analyze only the provided ingredients.
 Return valid JSON ONLY, plain text.
 
 STRICT RULES:
-- must be 4 to 5 reviews only not always 4 or 5
+- must be 1 to 5 reviews only
 - each review must have name, stars (1-5), comment, date, helpful
 - descriptions mmust be exactly 40 words
 
@@ -61,7 +61,7 @@ JSON format:
 {
 "alerts": "key concerns",
   "ai_summary": "short summary ( 100 words)",
-  "total_rating": 1-5,
+  "total_rating": 1-5 (average rating),
   "total_reviews": number,
   "overview": {
     "descriptions": "overview",
