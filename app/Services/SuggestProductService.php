@@ -53,7 +53,7 @@ Analyze only the provided ingredients.
 Return valid JSON ONLY, plain text.
 
 STRICT RULES:
-- must be 4 to 5 reviews only
+- must be 4 to 5 reviews only not always 4 or 5
 - each review must have name, stars (1-5), comment, date, helpful
 - descriptions mmust be exactly 40 words
 
