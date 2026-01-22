@@ -44,9 +44,9 @@ class SuggestProductService
     /**
      * Build FAST & MINIMAL messages
      */
-   protected function buildMessages(string $prompt): array
-{
-    $systemPrompt = <<<SYSTEM
+    protected function buildMessages(string $prompt): array
+    {
+   $systemPrompt = <<<SYSTEM
 You are a cosmetic product assistant.
 
 Analyze only the provided ingredients.
@@ -55,37 +55,37 @@ Return valid JSON ONLY, plain text.
 STRICT RULES:
 - Generate between 1 and 5 reviews. The exact number is up to you.
 - Each review must include: name, stars (1-5), comment, date, helpful.
-- descriptions must be exactly 40 words.
 - total_reviews = number of reviews you generated.
 - total_rating = average of the review stars.
+- descriptions must be exactly 40 words.
+- Do not include extra commas or fields in JSON.
 
-JSON format:
+Example JSON format (without fixed numbers):
 {
-"alerts": "key concerns",
-"ai_summary": "short summary (max 100 words)",
-"total_rating": number,
-"total_reviews": number,
-"overview": {
-    "descriptions": "overview exactly 40 words",
-    "how_to_use": "steps (max 50 words)",
-    "warnings": "sensitivities (max 50 words)"
-},
-"ingredients": [{"name":"", "description":"", "tags":["Safe"]}],
-"reviews": [
-  {"name":"","stars":1-5,"comment":"","date":"","helpful":0}
-]
+  "alerts": "key concerns",
+  "ai_summary": "short summary",
+  "total_rating": null,
+  "total_reviews": null,
+  "overview": {
+      "descriptions": "",
+      "how_to_use": "",
+      "warnings": ""
+  },
+  "ingredients": [{"name":"", "description":"", "tags":["Safe"]}],
+  "reviews": [{"name":"","stars":null,"comment":"","date":"","helpful":0}]
 }
 
 - Do NOT add extra fields.
-- If generating the full response takes too long, shorten text in fields like ai_summary, overview.descriptions, how_to_use, warnings, but do not remove any fields or reviews.
+- If generating full response takes too long, shorten text in fields like ai_summary, overview.descriptions, how_to_use, warnings, but do not remove any fields or reviews.
+
 SYSTEM;
 
-    return [
-        ['role' => 'system', 'content' => $systemPrompt],
-        ['role' => 'user', 'content' => $prompt],
-    ];
-}
 
+        return [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => $prompt],
+        ];
+    }
 
     /**
      * Call OpenAI API (FAST CONFIG)
