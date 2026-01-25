@@ -48,7 +48,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to book services. '.$e->getMessage(), 500);
-        }         
+        }
     }
 
     public function getClientBookings(Request $request)
@@ -82,7 +82,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to retrieve bookings. '.$e->getMessage(), 500);
-        }         
+        }
     }
 
     public function getProfessionalBookings(Request $request)
@@ -125,7 +125,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to retrieve bookings. '.$e->getMessage(), 500);
-        }         
+        }
     }
 
     public function approveBooking(Request $request)
@@ -147,7 +147,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to update booking status. '.$e->getMessage(), 500);
-        }         
+        }
     }
 
     public function cancelBooking(Request $request)
@@ -171,7 +171,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to cancel booking. '.$e->getMessage(), 500);
-        }         
+        }
     }
 
     public function completeBooking(Request $request)
@@ -193,7 +193,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to complete booking. '.$e->getMessage(), 500);
-        }         
+        }
     }
 
     public function updateBookingStatus(Request $request)
@@ -216,7 +216,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to update booking status. '.$e->getMessage(), 500);
-        }         
+        }
     }
 
     public function submitReview(Request $request)

@@ -237,16 +237,12 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 
 Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(function () {
     Route::post('/service', [\App\Http\Controllers\Api\BookingController::class, 'bookService']);
-<<<<<<< HEAD
-    Route::get('/user', [\App\Http\Controllers\Api\BookingController::class, 'getUserBookings']);
-=======
     Route::get('/client/bookings', [\App\Http\Controllers\Api\BookingController::class, 'getClientBookings']);
     Route::post('/cancel/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'cancelBooking']);
     Route::post('/complete/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'completeBooking']);
 
     Route::get('/client/reviews', [\App\Http\Controllers\Api\BookingController::class, 'getClientReviewBookings']);
     Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
->>>>>>> arif-dev
 });
 
 Route::middleware(['auth:professional', 'role:professional'])->prefix('booking')->group(function () {
