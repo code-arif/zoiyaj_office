@@ -2,6 +2,7 @@
 //   dd
 
 use App\Http\Controllers\Api\BarcodeController;
+use App\Http\Controllers\Api\Client\HomeController as ClientHomeController;
 use App\Http\Controllers\Api\Client\ProfileSetupController;
 use App\Http\Controllers\Api\Professional\PortfolioController;
 use App\Http\Controllers\Api\Professional\ProfessionalProfileController;
@@ -142,7 +143,7 @@ Route::get('/subscription/plan/{id}', [SubscriptionController::class, 'getPlanDe
 
 
 
-Route::get('/subscription/plan', [SubscriptionController::class, 'getPlans']);
+Route::get('/categories/salon/{category_id}', [ClientHomeController::class, 'salon_category_list']);
 
 
 
