@@ -257,6 +257,7 @@ Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(
     // profile create
     Route::post('/setup/basic/information', [ProfileSetupController::class, 'setup_basic']);
     Route::post('/setup/preferences/information', [ProfileSetupController::class, 'preferences_info']);
+    Route::post('/setup/others/information', [ProfileSetupController::class, 'others_info']);
 
     // information
     Route::get('about/me', [ProfileSetupController::class, 'about_me']);

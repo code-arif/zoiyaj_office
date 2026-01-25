@@ -1,14 +1,14 @@
 <?php
 namespace App\Http\Controllers\Api\Client;
 
-use Throwable;
 use App\Helpers\Helper;
+use App\Http\Controllers\Controller;
 use App\Models\Preference;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Throwable;
 
 class ProfileSetupController extends Controller
 {
@@ -19,11 +19,11 @@ class ProfileSetupController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'avatar'                      => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-                'age'                         => 'nullable|integer',
-                'is_wheelchair_accessibility' => 'nullable|boolean',
-                'is_hijab_friendly'           => 'nullable|boolean',
-                'is_prone'                    => 'nullable|boolean',
+                'avatar'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+                'age'             => 'nullable|integer',
+                'preference_id'   => 'required|array',
+                'preference_id.*' => 'exists:preferences,id',
+
             ]);
 
             if ($validator->fails()) {
@@ -44,11 +44,19 @@ class ProfileSetupController extends Controller
 
             // Update other fields
             $user->age                         = $request->age ?? $user->age;
-            $user->is_wheelchair_accessibility = $request->is_wheelchair_accessibility ?? $user->is_wheelchair_accessibility;
-            $user->is_hijab_friendly           = $request->is_hijab_friendly ?? $user->is_hijab_friendly;
-            $user->is_prone                    = $request->is_prone ?? $user->is_prone;
-
             $user->save();
+
+            // Delete old preferences
+            $user->preferences()->delete();
+
+            foreach ($request->preference_id as $preferenceId) {
+                $preference = Preference::findOrFail($preferenceId);
+
+                $user->preferences()->create([
+                    'preference_id' => $preferenceId,
+                    'type'          => $preference->type,
+                ]);
+            }
 
             DB::commit();
 
@@ -60,6 +68,8 @@ class ProfileSetupController extends Controller
                 'is_wheelchair_accessibility' => $user->is_wheelchair_accessibility,
                 'is_hijab_friendly'           => $user->is_hijab_friendly,
                 'is_prone'                    => $user->is_prone,
+
+                'preferences'                 => $user->preferences,
             ];
 
             return $this->success($data, 'Profile & preferences added successfully', 200);
@@ -79,15 +89,18 @@ class ProfileSetupController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'preference_id'   => 'required|array',
-                'preference_id.*' => 'exists:preferences,id',
+                'preference_id'               => 'required|array',
+                'preference_id.*'             => 'exists:preferences,id',
+                'is_wheelchair_accessibility' => 'nullable|boolean',
             ]);
 
             if ($validator->fails()) {
                 return $this->error($validator->errors(), 'Validation failed', 422);
             }
 
-            $user = auth('api')->user();
+            $user                              = auth('api')->user();
+            $user->is_wheelchair_accessibility = $request->is_wheelchair_accessibility ?? $user->is_wheelchair_accessibility;
+            $user->save();
 
             DB::beginTransaction();
 
@@ -106,9 +119,10 @@ class ProfileSetupController extends Controller
             DB::commit();
 
             $data = [
-                'id'          => $user->id,
-                'role'        => $user->role,
-                'preferences' => $user->preferences,
+                'id'                          => $user->id,
+                'role'                        => $user->role,
+                'is_wheelchair_accessibility' => $user->is_wheelchair_accessibility,
+                'preferences'                 => $user->preferences,
             ];
 
             return $this->success($data, 'Preferences information saved successfully', 200);
@@ -126,6 +140,49 @@ class ProfileSetupController extends Controller
     }
 
 
+
+    public function others_info(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'is_hijab_friendly'           => 'nullable|boolean',
+                'is_prone'                    => 'nullable|boolean',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 'Validation failed', 422);
+            }
+
+            $user                              = auth('api')->user();
+            $user->is_hijab_friendly           = $request->is_hijab_friendly ?? $user->is_hijab_friendly;
+            $user->is_prone                    = $request->is_prone ?? $user->
+            $user->save();
+
+            DB::beginTransaction();
+
+
+            DB::commit();
+
+            $data = [
+                'id'                          => $user->id,
+                'role'                        => $user->role,
+                'is_hijab_friendly'           => $user->is_hijab_friendly,
+                'is_prone'                    => $user->is_prone,
+            ];
+
+            return $this->success($data, 'Preferences others information saved successfully', 200);
+
+        } catch (Throwable $e) {
+
+            DB::rollBack();
+
+            return $this->error(
+                ['error' => $e->getMessage()],
+                'Something went wrong while saving preferences',
+                500
+            );
+        }
+    }
 
     public function about_me(Request $request)
     {
@@ -149,9 +206,5 @@ class ProfileSetupController extends Controller
 
         return $this->success($data, 'About me retrieved successfully', 200);
     }
-
-
-
-
 
 }
