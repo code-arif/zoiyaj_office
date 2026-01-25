@@ -122,10 +122,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(CompanyProject::class, 'company_id', 'id');
     }
 
-    public function user_categories()
-    {
-        return $this->belongsToMany(Category::class, 'user_categories', 'user_id', 'category_id');
-    }
+    // public function user_categories()
+    // {
+    //     return $this->belongsToMany(Category::class, 'user_categories', 'user_id', 'category_id');
+    // }
 
     public function wishlist()
     {
@@ -258,4 +258,13 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Room::class, 'second_user_id');
     }
+
+
+    public function user_categories()
+    {
+        return $this->hasMany(ProfessionalCategory::class, 'user_id', 'id');
+    }
+
+
+
 }

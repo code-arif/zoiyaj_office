@@ -6,6 +6,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\ProfessionalBrand;
 use App\Http\Controllers\Controller;
+use App\Models\ProfessionalCategory;
 use App\Models\ProfessionalSpecialty;
 use Illuminate\Support\Facades\Validator;
 
@@ -219,6 +220,58 @@ class ProfessionalProfileController extends Controller
         return $this->success($user, 'Professional brands updated successfully', 200);
     }
 
+
+
+    public function setup_category(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'category_id'   => 'required|array',
+            'category_id.*' => 'exists:categories,id',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors(), 'Validation failed', 422);
+        }
+
+        $user = auth('api')->user();
+
+        // Sync categories (delete old and insert new)
+        $user->user_categories()->delete();
+        if (! empty($request->category_id)) {
+            $categories = collect($request->category_id)->map(function ($id) use ($user) {
+                return [
+                    'user_id'    => $user->id,
+                    'category_id'   => $id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            })->toArray();
+
+            ProfessionalCategory::insert($categories);
+        }
+
+        // Load updated categories
+        $user->load('user_categories');
+        return $this->success($user, 'Professional categories updated successfully', 200);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function services(Request $request)
     {
 
@@ -316,7 +369,9 @@ class ProfessionalProfileController extends Controller
             'working_hours'      => $user->working_hours,
             'accessibilties'     => json_decode($user->accessibilties),
             'services'           => $user->services,
-            'brands' => $user->user_brands->load('brand')
+            'brands' => $user->user_brands->load('brand'),
+            'categories' => $user->user_categories->load('category'),
+
 
         ];
 

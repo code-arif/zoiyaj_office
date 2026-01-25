@@ -153,21 +153,7 @@ class HomeController extends Controller
 
     public function category_list(Request $request)
     {
-        $userId = auth('api')->id();
-
-        $categories = Category::select('id', 'title', 'slug', 'image')
-            ->get()
-            ->map(function ($category) use ($userId) {
-                $category->is_selected = DB::table('user_categories')
-                    ->where('user_id', $userId)
-                    ->where('category_id', $category->id)
-                    ->exists();
-                return $category;
-            });
-
-        $data = [
-            'categories' => $categories,
-        ];
+        $data = Category::all();
 
         return $this->success($data, 'Category list retrive successfully');
     }
