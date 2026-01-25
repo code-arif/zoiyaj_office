@@ -74,6 +74,10 @@ class User extends Authenticatable implements JWTSubject
             'is_otp_verified'                 => 'boolean',
             'reset_password_token_expires_at' => 'datetime',
             'password'                        => 'hashed',
+            'is_wheelchair_accessibility'    => 'boolean',
+            'is_hijab_friendly'              => 'boolean',
+            'is_prone'                       => 'boolean',
+
         ];
     }
 

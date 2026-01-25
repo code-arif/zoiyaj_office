@@ -10,6 +10,12 @@ class ProfessinalWorkingHour extends Model
 
     protected $hidden = ['created_at', 'updated_at'];
 
+
+
+    protected $casts = [
+        'is_closed' => 'boolean',
+    ];
+
     // WorkingHour model
     public function getOpenTime12Attribute()
     {
