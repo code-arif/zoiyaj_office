@@ -20,7 +20,8 @@ class ChatMessageResource extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'humanize_date'   => $this->created_at ? $this->safe($this->created_at->diffForHumans()) : 'just now',
+            'humanize_date' => optional($this->created_at)->diffForHumans() ?? 'just now',
+
             'sender' => [
                 'id' => $this->sender->id,
                 'first_name' => $this->sender->first_name,
