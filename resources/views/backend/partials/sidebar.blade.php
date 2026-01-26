@@ -97,12 +97,16 @@
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('brand') ? 'has-link' : '' }}"
                         href="{{ route('admin.brand.index') }}">
+
+
                         <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="24" height="24"
                             fill="currentColor" viewBox="0 0 24 24">
                             <path
-                                d="M20.59 13.41l-7.59 7.59c-.36.36-.86.59-1.41.59s-1.05-.23-1.41-.59l-7.59-7.59c-.36-.36-.59-.86-.59-1.41s.23-1.05.59-1.41l7.59-7.59c.36-.36.86-.59 1.41-.59s1.05.23 1.41.59l7.59 7.59c.36.36.59.86.59 1.41s-.23 1.05-.59 1.41zM12 4.41L4.41 12 12 19.59 19.59 12 12 4.41z" />
-                            <circle cx="12" cy="12" r="2" />
+                                d="M18 2H6a2 2 0 0 0-2 2v16a1 1 0 0 0 1.447.894L12 18l6.553 2.894A1 1 0 0 0 20 20V4a2 2 0 0 0-2-2zM6 4h12v13.382l-5.553-2.353a1 1 0 0 0-.894 0L6 17.382V4z" />
                         </svg>
+
+
+
                         <span class="side-menu__label">Brand</span>
                     </a>
                 </li>

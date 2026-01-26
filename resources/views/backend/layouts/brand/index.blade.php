@@ -50,7 +50,9 @@
                                         <tr>
                                             <th class="bg-transparent border-bottom-0 wp-15">ID</th>
                                             <th class="bg-transparent border-bottom-0 wp-15">Name</th>
-                                            {{-- <th class="bg-transparent border-bottom-0">Image</th> --}}
+                                            <th class="bg-transparent border-bottom-0">Image</th>
+                                            <th class="bg-transparent border-bottom-0">Promo Code</th>
+                                            <th class="bg-transparent border-bottom-0">Redirect URL</th>
                                             {{-- <th class="bg-transparent border-bottom-0">Status</th> --}}
                                             <th class="bg-transparent border-bottom-0">Action</th>
                                         </tr>
@@ -122,18 +124,25 @@
                         orderable: true,
                         searchable: true
                     },
-                    // {
-                    //     data: 'image',
-                    //     name: 'image',
-                    //     orderable: false,
-                    //     searchable: false
-                    // },
-                    // {
-                    //     data: 'status',
-                    //     name: 'status',
-                    //     orderable: false,
-                    //     searchable: false
-                    // },
+                    {
+                        data: 'thumb',
+                        name: 'thumb',
+                        orderable: false,
+                        searchable: false,
+                        className: 'dt-center text-center'
+                    },
+                    {
+                        data: 'promo_code',
+                        name: 'promo_code',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'redirect_url',
+                        name: 'redirect_url',
+                        orderable: false,
+                        searchable: false
+                    },
                     {
                         data: 'action',
                         name: 'action',

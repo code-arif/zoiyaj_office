@@ -83,6 +83,8 @@ class HomeController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+
+
         $data = $professionals->map(function ($professional) {
             return [
                 'id'                => $professional->id,
@@ -96,6 +98,8 @@ class HomeController extends Controller
                 'services'          => $professional->services()->first(),
             ];
         });
+
+
 
         return $this->success($data, 'Top Stylist salon fetched successfully.', 200);
 

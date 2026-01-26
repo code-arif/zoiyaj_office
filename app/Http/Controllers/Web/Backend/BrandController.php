@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Web\Backend;
 
 use Exception;
-use App\Helper\Helper;
+use App\Models\Brand;
+use App\Helpers\Helper;
 use App\Models\Category;
+use App\Models\Specialty;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Models\Brand;
-use App\Models\Specialty;
 use Yajra\DataTables\Facades\DataTables;
 
 
@@ -24,6 +24,15 @@ class BrandController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
 
+                ->addColumn('thumb', function ($data) {
+                    $url = !empty($data->thumb) ? asset($data->thumb) : asset('uploads/default.png');
+                    return '<img src="' . $url . '" alt="' . $data->name . '" width="50" height="50"/>';
+                })
+
+
+
+
+
                 ->addColumn('action', function ($data) {
                     return '<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
 
@@ -36,7 +45,7 @@ class BrandController extends Controller
                                 </a>
                             </div>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['thumb', 'action'])
                 ->make();
         }
         return view("backend.layouts.brand.index");
@@ -54,9 +63,17 @@ class BrandController extends Controller
 
         $validate = $request->validate([
             'name' => 'required',
+            'thumb' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'promo_code' => 'nullable|string',
+            'redirect_url' => 'required|string',
         ]);
 
         try {
+
+
+            if ($request->hasFile('thumb')) {
+                $validate['thumb'] = Helper::uploadImage($request->file('thumb'), 'brands');
+            }
 
             Brand::create($validate);
 
@@ -84,13 +101,20 @@ class BrandController extends Controller
     {
         $validate = $request->validate([
             'name' => 'required',
+            'thumb' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'promo_code' => 'nullable|string',
+            'redirect_url' => 'required|string',
 
         ]);
 
         try {
+
+
+            if ($request->hasFile('thumb')) {
+                $validate['thumb'] = Helper::uploadImage($request->file('thumb'), 'brands');
+            }
+
             $Brand = Brand::findOrFail($id);
-
-
 
             $Brand->update($validate);
             session()->put('t-success', 'Brand updated successfully');

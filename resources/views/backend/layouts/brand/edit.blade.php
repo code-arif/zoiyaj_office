@@ -47,6 +47,48 @@
                                                     @enderror
                                                 </div>
 
+                                                <div class="form-group">
+                                                    <label for="thumb" class="form-label">Thumb:</label>
+                                                    <input type="file"
+                                                        class="form-control @error('thumb') is-invalid @enderror"
+                                                        name="thumb" id="">
+                                                    @error('thumb')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+                                                {{-- preview --}}
+                                                <div class="form-group">
+                                                    <label for="thumb" class="form-label">Thumb Preview:</label>
+                                                    <img src="{{ asset($brand->thumb) }}" alt="{{ $brand->name }}" width="100" height="100">
+                                                </div>
+
+
+
+                                                <div class="form-group">
+                                                    <label for="promo_code" class="form-label">Promo Code:</label>
+                                                    <input type="text"
+                                                        class="form-control @error('promo_code') is-invalid @enderror"
+                                                        name="promo_code" placeholder="Promo Code" id=""
+                                                        value="{{ $brand->promo_code }}">
+                                                    @error('promo_code')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="redirect_url" class="form-label">Redirect URL:</label>
+                                                    <input type="url"
+                                                        class="form-control @error('redirect_url') is-invalid @enderror"
+                                                        name="redirect_url" placeholder="Redirect URL" id=""
+                                                        value="{{ $brand->redirect_url }}">
+                                                    @error('redirect_url')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+
+
 
 
                                                 <div class="form-group">
