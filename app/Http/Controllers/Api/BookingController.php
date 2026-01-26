@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\Booking;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\ServiceReview;
 use App\Models\ServiceBooking;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
@@ -17,38 +19,53 @@ class BookingController extends Controller
     public function bookService(Request $request)
     {
         $request->validate([
+            'owner_id' => 'required|exists:users,id',
+            'date' => 'required|date',
             'service_ids' => 'required|array',
             'service_ids.*' => 'required|exists:professinal_services,id',
             'scheduled_date' => 'required|date',
-            'scheduled_time' => 'required',
+            'scheduled_times' => 'required|array',
+            'scheduled_times.*' => 'required',
             'notes' => 'nullable|string',
         ]);
 
         try {
-            $user = User::find($request->user_id);
-            if (!$user) {
+            DB::beginTransaction();
+            $owner = User::find($request->owner_id);
+
+            $user = $request->user();
+
+            if (!$user || !$owner) {
                 return $this->error(null, 'User not found.', 404);
             }
 
-            $bookingCollection = collect($request->service_ids)->map(function ($serviceId) use ($request, $user) {
+            $booking = Booking::create([
+                'owner_id' => $owner->id,
+                'user_id' => $user->id,
+                'date' => date('Y-m-d'),
+                'status' => 'pending',
+                'points' => 5,
+                'notes' => $request->notes ?? '',
+            ]);
+
+            if(count($request->service_ids) != count($request->scheduled_times)){
+                return $this->error(null, 'Service and Scheduled times mismatch. Please select the same number of services and scheduled times.', 400);
+            }
+
+            $bookingCollection = collect($request->service_ids)->map(function ($serviceId) use ($request, $booking) {
                 return [
-                    'user_id' => $user->id,
+                    'booking_id' => $booking->id,
                     'service_id' => $serviceId,
                     'scheduled_date' => $request->scheduled_date,
-                    'scheduled_time' => $request->scheduled_time,
-                    'notes' => $request->notes,
-                    'status' => 'pending',
-                    'points' => 5,
+                    'scheduled_time' => $request->scheduled_times[array_search($serviceId, $request->service_ids)],
                 ];
             })->toArray();
 
-
-
-
             ServiceBooking::insert($bookingCollection);
-
+            DB::commit();
             return $this->success(null, 'Services booked successfully.', 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to book services. '.$e->getMessage(), 500);
         }
@@ -68,17 +85,30 @@ class BookingController extends Controller
             $today = date('Y-m-d');
 
             if($type == 'upcoming'){
-                $bookings = $user->service_bookings()
-                                ->where('status', 'pending')
-                                ->orWhere('status', 'confirmed')
-                                ->where('scheduled_date', '>=', $today)
-                                ->with('service')->get();
+                $bookings = Booking::where('user_id', $user->id)
+                                ->where(function($query) {
+                                    $query->where('status', 'pending')
+                                          ->orWhere('status', 'confirmed');
+                                })
+                                ->whereHas('serviceBookings', function($query) use ($today) {
+                                    $query->where('scheduled_date', '>=', $today);
+                                })
+                                ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                                ->get();
             } elseif($type == 'completed'){
-                $bookings = $user->service_bookings()->where('status', 'completed')->with('service')->get();
+                $bookings = Booking::where('user_id', $user->id)
+                                ->where('status', 'completed')
+                                ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                                ->get();
             } elseif($type == 'cancelled'){
-                $bookings = $user->service_bookings()->where('status', 'cancelled')->with('service')->get();
+                $bookings = Booking::where('user_id', $user->id)
+                                ->where('status', 'cancelled')
+                                ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                                ->get();
             } else {
-                $bookings = $user->service_bookings()->with('service')->get();
+                $bookings = Booking::where('user_id', $user->id)
+                                ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                                ->get();
             }
 
             return $this->success($bookings, 'User bookings retrieved successfully.', 200);
@@ -103,25 +133,30 @@ class BookingController extends Controller
             $today = date('Y-m-d');
 
             if($type === 'upcoming'){
-                $bookings = ServiceBooking::whereHas('service', function ($query) use ($professional) {
-                    $query->where('user_id', $professional->id);
-                })
-                ->where('status', 'pending')
-                ->orWhere('status', 'confirmed')
-                ->where('scheduled_date', '>=', $today)
-                ->with('service')->get();
+                $bookings = Booking::where('owner_id', $professional->id)
+                    ->where(function($query) {
+                        $query->where('status', 'pending')
+                              ->orWhere('status', 'confirmed');
+                    })
+                    ->whereHas('serviceBookings', function($query) use ($today) {
+                        $query->where('scheduled_date', '>=', $today);
+                    })
+                    ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                    ->get();
             } elseif($type === 'completed'){
-                $bookings = ServiceBooking::whereHas('service', function ($query) use ($professional) {
-                    $query->where('user_id', $professional->id);
-                })->where('status', 'completed')->with('service')->get();
+                $bookings = Booking::where('owner_id', $professional->id)
+                    ->where('status', 'completed')
+                    ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                    ->get();
             } elseif($type === 'cancelled'){
-                $bookings = ServiceBooking::whereHas('service', function ($query) use ($professional) {
-                    $query->where('user_id', $professional->id);
-                })->where('status', 'cancelled')->with('service')->get();
+                $bookings = Booking::where('owner_id', $professional->id)
+                    ->where('status', 'cancelled')
+                    ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                    ->get();
             } else {
-                $bookings = ServiceBooking::whereHas('service', function ($query) use ($professional) {
-                    $query->where('user_id', $professional->id);
-                })->with('service')->get();
+                $bookings = Booking::where('owner_id', $professional->id)
+                    ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                    ->get();
             }
 
             return $this->success($bookings, 'Professional bookings retrieved successfully.', 200);
@@ -134,11 +169,11 @@ class BookingController extends Controller
     public function approveBooking(Request $request)
     {
         $request->validate([
-            'booking_id' => 'required|exists:service_bookings,id',
+            'booking_id' => 'required|exists:bookings,id',
         ]);
 
         try {
-            $booking = ServiceBooking::find($request->booking_id);
+            $booking = Booking::find($request->booking_id);
             if (!$booking) {
                 return $this->error(null, 'Booking not found.', 404);
             }
@@ -146,7 +181,7 @@ class BookingController extends Controller
             $booking->status = 'confirmed';
             $booking->save();
 
-            return $this->success($booking, 'Booking status updated successfully.', 200);
+            return $this->success($booking->load('serviceBookings.service'), 'Booking status updated successfully.', 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to update booking status. '.$e->getMessage(), 500);
@@ -156,12 +191,12 @@ class BookingController extends Controller
     public function cancelBooking(Request $request)
     {
         $request->validate([
-            'booking_id' => 'required|exists:service_bookings,id',
+            'booking_id' => 'required|exists:bookings,id',
             'reason' => 'nullable|string',
         ]);
 
         try {
-            $booking = ServiceBooking::find($request->booking_id);
+            $booking = Booking::find($request->booking_id);
             if (!$booking) {
                 return $this->error(null, 'Booking not found.', 404);
             }
@@ -170,7 +205,7 @@ class BookingController extends Controller
             $booking->notes = 'Reason: ' . $request->reason;
             $booking->save();
 
-            return $this->success($booking, 'Booking cancelled successfully.', 200);
+            return $this->success($booking->load('serviceBookings.service'), 'Booking cancelled successfully.', 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to cancel booking. '.$e->getMessage(), 500);
@@ -180,11 +215,11 @@ class BookingController extends Controller
     public function completeBooking(Request $request)
     {
         $request->validate([
-            'booking_id' => 'required|exists:service_bookings,id',
+            'booking_id' => 'required|exists:bookings,id',
         ]);
 
         try {
-            $booking = ServiceBooking::find($request->booking_id);
+            $booking = Booking::find($request->booking_id);
             if (!$booking) {
                 return $this->error(null, 'Booking not found.', 404);
             }
@@ -192,7 +227,7 @@ class BookingController extends Controller
             $booking->status = 'completed';
             $booking->save();
 
-            return $this->success($booking, 'Booking marked as completed successfully.', 200);
+            return $this->success($booking->load('serviceBookings.service'), 'Booking marked as completed successfully.', 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to complete booking. '.$e->getMessage(), 500);
@@ -202,12 +237,12 @@ class BookingController extends Controller
     public function updateBookingStatus(Request $request)
     {
         $request->validate([
-            'booking_id' => 'required|exists:service_bookings,id',
+            'booking_id' => 'required|exists:bookings,id',
             'status' => 'required|in:pending,confirmed,completed,cancelled',
         ]);
 
         try {
-            $booking = ServiceBooking::find($request->booking_id);
+            $booking = Booking::find($request->booking_id);
             if (!$booking) {
                 return $this->error(null, 'Booking not found.', 404);
             }
@@ -215,7 +250,7 @@ class BookingController extends Controller
             $booking->status = $request->status;
             $booking->save();
 
-            return $this->success($booking, 'Booking status updated successfully.', 200);
+            return $this->success($booking->load('serviceBookings.service'), 'Booking status updated successfully.', 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to update booking status. '.$e->getMessage(), 500);
@@ -225,19 +260,21 @@ class BookingController extends Controller
     public function submitReview(Request $request)
     {
         $request->validate([
-            'booking_id' => 'required|exists:service_bookings,id',
-            'service_id' => 'required|exists:professinal_services,id',
-            'client_id' => 'required|exists:users,id',
+            'booking_id' => 'required|exists:bookings,id',
             'professional_id' => 'required|exists:users,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string',
         ]);
 
+        $client = $request->user();
+        if (!$client || $client->role != 'client') {
+            return $this->error(null, 'Unauthorized action.', 403);
+        }
+
         try {
             $review = ServiceReview::create([
                 'booking_id' => $request->booking_id,
-                'service_id' => $request->service_id,
-                'client_id' => $request->client_id,
+                'client_id' => $client->id,
                 'professional_id' => $request->professional_id,
                 'rating' => $request->rating,
                 'comment' => $request->comment,

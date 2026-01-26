@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('service_reviews', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('booking_id');
-            $table->unsignedBigInteger('service_id');
-            $table->unsignedBigInteger('client_id');
-            $table->unsignedBigInteger('professional_id');
+            $table->unsignedBigInteger('booking_id')->nullable();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->unsignedBigInteger('professional_id')->nullable();
             $table->integer('rating')->nullable();
             $table->text('comment')->nullable();
             $table->timestamps();

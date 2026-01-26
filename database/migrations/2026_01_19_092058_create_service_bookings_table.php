@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('service_bookings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('booking_id')->constrained('bookings')->onDelete('cascade');
             $table->foreignId('service_id')->constrained('professinal_services')->onDelete('cascade');
             $table->date('scheduled_date')->nullable();
             $table->time('scheduled_time')->nullable();
-            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
-            $table->decimal('points')->nullable();
-            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
