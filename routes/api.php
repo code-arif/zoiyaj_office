@@ -146,6 +146,11 @@ Route::get('/subscription/plan/{id}', [SubscriptionController::class, 'getPlanDe
 Route::get('/categories/salon-list/{category_id}', [ClientHomeController::class, 'salon_category_list']);
 
 
+// popular categories
+Route::get('/popular/categories/list', [ClientHomeController::class, 'popular_categories']);
+Route::get('/nearby/salon/list', [ClientHomeController::class, 'nearby_salon_list']);
+Route::get('/top-stylist/salon/list', [ClientHomeController::class, 'top_stylist_salon_list']);
+
 
 
 // Route::middleware('auth:api')->prefix('auth')->group(function () {

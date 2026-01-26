@@ -45,10 +45,6 @@ class BookingController extends Controller
 
 
 
-
-
-
-
             ServiceBooking::insert($bookingCollection);
 
             return $this->success(null, 'Services booked successfully.', 200);
