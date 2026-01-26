@@ -33,7 +33,7 @@ class ChatSystemController extends Controller
         $keyword = $request->get('keyword');
 
         $result = $this->chatService->getUserChatList(
-            auth()->id(),
+            auth('api')->id(),
             $keyword,
             $perPage
         );
@@ -55,7 +55,7 @@ class ChatSystemController extends Controller
     public function conversation(int $receiver_id): JsonResponse
     {
         $conversation = $this->chatService->getConversation(
-            auth()->id(),
+            auth('api')->id(),
             $receiver_id
         );
 
@@ -79,7 +79,7 @@ class ChatSystemController extends Controller
     public function send(int $receiver_id, SendMessageRequest $request): JsonResponse
     {
         $chat = $this->chatService->sendMessage(
-            auth()->id(),
+            auth('api')->id(),
             $receiver_id,
             $request->validated()
         );
@@ -104,7 +104,7 @@ class ChatSystemController extends Controller
     public function seenAll(int $receiver_id): JsonResponse
     {
         $result = $this->chatService->markAllAsRead(
-            auth()->id(),
+            auth('api')->id(),
             $receiver_id
         );
 
@@ -128,7 +128,7 @@ class ChatSystemController extends Controller
     public function seenSingle(int $chat_id): JsonResponse
     {
         $result = $this->chatService->markSingleAsRead(
-            auth()->id(),
+            auth('api')->id(),
             $chat_id
         );
 
@@ -144,7 +144,7 @@ class ChatSystemController extends Controller
     public function room(int $receiver_id): JsonResponse
     {
         $room = $this->chatService->getOrCreateRoom(
-            auth()->id(),
+            auth('api')->id(),
             $receiver_id
         );
 
