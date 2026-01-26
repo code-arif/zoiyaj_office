@@ -54,7 +54,7 @@ class AuthenticationController extends Controller
             ]);
 
             // Try to send mail
-             Mail::to($user->email)->send(new RegisterOtpMail($otp, $user));
+            //  Mail::to($user->email)->send(new RegisterOtpMail($otp, $user));
 
             // If everything is fine, commit
             DB::commit();

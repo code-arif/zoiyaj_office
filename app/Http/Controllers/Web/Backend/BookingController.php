@@ -16,7 +16,7 @@ class BookingController extends Controller
     public function getData(Request $request)
     {
         if($request->ajax()){
-            $bookings = \App\Models\ServiceBooking::with(['user', 'service.professional'])->orderBy('created_at', 'DESC')->get();
+            $bookings = \App\Models\Booking::with(['user','serviceBookings', 'serviceBookings.service'])->orderBy('created_at', 'DESC')->get();
             return DataTables::of($bookings)
                 ->addIndexColumn()
                 ->addColumn('service', function($booking){
@@ -26,10 +26,10 @@ class BookingController extends Controller
                     return $booking->user->first_name . ' ' . $booking->user->last_name ?? 'N/A';
                 })
                 ->addColumn('professional', function($booking){
-                    return $booking->service->professional->first_name . ' ' . $booking->service->professional->last_name ?? 'N/A';
+                    return $booking->owner->first_name . ' ' . $booking->owner->last_name ?? 'N/A';
                 })
-                ->addColumn('schedule', function($booking){
-                    return $booking->scheduled_date . ' ' . $booking->scheduled_time;
+                ->addColumn('date', function($booking){
+                    return $booking->date;
                 })
                 ->addColumn('status', function($booking){
                     $btn ='';
@@ -50,10 +50,20 @@ class BookingController extends Controller
                     return $btn;
                 })  
                 ->addColumn('action', function($booking){
-                    return '<a href="#" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a>';
+
+                    return '<a href="#" class="btn btn-primary btn-sm" onclick="showDetails('.$booking->id.')"><i class="fa fa-eye"></i></a>';
                 })
                 ->rawColumns(['status', 'action'])
                 ->make(true);
         }
+    }
+
+    public function show($id)
+    {
+        $booking = \App\Models\Booking::with(['user', 'owner', 'serviceBookings','serviceBookings.service'])->findOrFail($id);
+        return response()->json([
+            'status' => 'success',
+            'data' => $booking
+        ]);
     }
 }

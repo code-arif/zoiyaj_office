@@ -360,3 +360,4 @@ Route::controller(DynamicPageController::class)->group(function () {
 
 Route::get('/bookings', [BookingController::class, 'index'])->name('admin.bookings.index');
 Route::get('/bookings/data', [BookingController::class, 'getData'])->name('admin.bookings.data');
+Route::get('/bookings/{id}', [BookingController::class, 'show'])->name('admin.book.show');

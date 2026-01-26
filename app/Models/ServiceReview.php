@@ -8,7 +8,6 @@ class ServiceReview extends Model
 {
     protected $fillable = [
         'booking_id',
-        'service_id',
         'client_id',
         'professional_id',
         'rating',
@@ -28,10 +27,5 @@ class ServiceReview extends Model
     public function professional()
     {
         return $this->belongsTo(User::class, 'professional_id', 'id');
-    }
-
-    public function service()
-    {
-        return $this->belongsTo(ProfessinalService::class, 'service_id', 'id');
     }
 }
