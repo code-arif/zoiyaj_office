@@ -1,16 +1,16 @@
 <?php
 namespace App\Http\Controllers\Api;
 
-use App\Models\User;
+use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
-use App\Models\ServiceReview;
 use App\Models\ServiceBooking;
 use App\Models\ServiceBookingTime;
+use App\Models\ServiceReview;
+use App\Models\User;
+use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 
 class BookingController extends Controller
 {
@@ -33,8 +33,6 @@ class BookingController extends Controller
             'notes'             => 'nullable|string',
         ]);
 
-
-
         // check if ei sechedule date e available kina ei time golor jonno
 
         $existingBookings = ServiceBookingTime::where('scheduled_date', $request->scheduled_date)
@@ -43,29 +41,17 @@ class BookingController extends Controller
 
         if ($existingBookings->count() > 0) {
 
-
             $times = $existingBookings->pluck('scheduled_time')->toArray();
 
             $formatttedTimes = array_map(function ($time) {
                 return date('h:i A', strtotime($time));
             }, $times);
 
-
-
-
-
             return $this->error($formatttedTimes, 'One or more selected time slots are already booked on ' . $request->scheduled_date . '. Please choose different time slots.', 400);
+
         }
 
-
-
-
-
-
-
         try {
-
-
 
             DB::beginTransaction();
             $owner = User::find($request->owner_id);
@@ -214,25 +200,62 @@ class BookingController extends Controller
                     ->whereHas('serviceBookings', function ($query) use ($today) {
                         $query->where('scheduled_date', '>=', $today);
                     })
-                    ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                    // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
                     ->get();
             } elseif ($type === 'completed') {
                 $bookings = Booking::where('owner_id', $professional->id)
                     ->where('status', 'completed')
-                    ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                    // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
                     ->get();
             } elseif ($type === 'cancelled') {
                 $bookings = Booking::where('owner_id', $professional->id)
                     ->where('status', 'cancelled')
-                    ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                    // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
                     ->get();
             } else {
                 $bookings = Booking::where('owner_id', $professional->id)
-                    ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                    // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
                     ->get();
             }
 
-            return $this->success($bookings, 'Professional bookings retrieved successfully.', 200);
+            $data = $bookings->map(function ($booking) {
+
+
+                return [
+                    'id'         => $booking->id,
+                    'owner_id'   => $booking->owner_id,
+                    'user_id'    => $booking->user_id,
+                    'date'       => $booking->date,
+                    'status'     => $booking->status,
+                    'points'     => $booking->points,
+                    'notes'      => $booking->notes,
+                    'created_at' => $booking->created_at,
+                    'updated_at' => $booking->updated_at,
+
+                    'services'   => $booking->serviceBookings()->with('service')->get(),
+
+                    'times'      => DB::table('service_booking_times')->where('booking_id', $booking->id)->get() ?? null,
+
+                    'user'       => [
+                        'id'         => $booking->user->id,
+                        'first_name' => $booking->user->first_name,
+                        'last_name'  => $booking->user->last_name,
+                        'avatar'     => $booking->user->avatar,
+                        'thumb'      => $booking->user->thumb,
+                    ],
+
+                ];
+            });
+
+
+
+
+
+
+
+
+
+            return $this->success($data, 'Professional bookings retrieved successfully.', 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to retrieve bookings. ' . $e->getMessage(), 500);
