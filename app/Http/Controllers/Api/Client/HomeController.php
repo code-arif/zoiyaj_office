@@ -90,6 +90,7 @@ class HomeController extends Controller
                 'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
                 'thumb'             => $professional->thumb,
                 'total_ratings'     => "5.0",
+                'category_type'         => $professional->user_categories()->first() ? $professional->user_categories()->first()->category->title : null,
                 'total_reviews'     => Random::generate(2, '0-9'),
                 'working_hours'     => $professional->working_hours()->first(),
                 'services'          => $professional->services()->first(),
