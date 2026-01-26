@@ -8,6 +8,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\ServiceReview;
 use App\Models\ServiceBooking;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
@@ -29,6 +30,7 @@ class BookingController extends Controller
         ]);
 
         try {
+            DB::beginTransaction();
             $owner = User::find($request->owner_id);
 
             $user = $request->user();
@@ -60,9 +62,10 @@ class BookingController extends Controller
             })->toArray();
 
             ServiceBooking::insert($bookingCollection);
-
+            DB::commit();
             return $this->success(null, 'Services booked successfully.', 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error($e->getMessage());
             return $this->error(null, 'Failed to book services. '.$e->getMessage(), 500);
         }
