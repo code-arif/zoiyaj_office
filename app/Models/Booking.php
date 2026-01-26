@@ -30,4 +30,10 @@ class Booking extends Model
         return $this->belongsTo(User::class, 'owner_id', 'id');
     }
 
+
+    public function serviceBookingTimes()
+    {
+        return $this->hasMany(ServiceBookingTime::class, 'booking_id');
+    }
+
 }

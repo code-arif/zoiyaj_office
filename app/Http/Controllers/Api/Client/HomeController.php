@@ -132,4 +132,59 @@ class HomeController extends Controller
     //     return $this->success($data, 'Top Stylist salon fetched successfully.', 200);
     // }
 
+
+
+
+    public function salon_detail(Request $request, $professional_id)
+    {
+        $professional = User::where('role', 'professional')
+            ->where('id', $professional_id)
+            ->with(['user_categories.category'])
+            ->first();
+
+        if (! $professional) {
+            return $this->error(null, 'Professional not found.', 404);
+        }
+
+        $data = [
+            'id'                => $professional->id,
+            'first_name'        => $professional->first_name,
+            'last_name'         => $professional->last_name,
+            'avatar'            => $professional->avatar,
+
+            'professional_name' => $professional->professional_name,
+            'bio'               => $professional->bio,
+            'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
+            'thumb'             => $professional->thumb,
+             'total_ratings'     => round($professional->avg_rating, 1),
+            'total_reviews'     => Random::generate(2, '0-9'),
+            'total_followers'   => Random::generate(3, '0-9'),
+            'portfolio'  => $professional->portfolios,
+
+            'categories'        => $professional->user_categories->map(function ($user_category) {
+                return [
+                    'id'    => $user_category->category->id,
+                    'title' => $user_category->category->title,
+                ];
+            }),
+            'working_hours'     => $professional->working_hours,
+            'services'          => $professional->services,
+
+        ];
+
+        return $this->success($data, 'Professional details fetched successfully.', 200);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
