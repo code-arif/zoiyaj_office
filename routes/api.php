@@ -143,7 +143,7 @@ Route::get('/subscription/plan/{id}', [SubscriptionController::class, 'getPlanDe
 
 
 
-Route::get('/categories/salon/{category_id}', [ClientHomeController::class, 'salon_category_list']);
+Route::get('/categories/salon-list/{category_id}', [ClientHomeController::class, 'salon_category_list']);
 
 
 

@@ -42,6 +42,13 @@ class BookingController extends Controller
                 ];
             })->toArray();
 
+
+
+
+
+
+
+
             ServiceBooking::insert($bookingCollection);
 
             return $this->success(null, 'Services booked successfully.', 200);
