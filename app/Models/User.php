@@ -93,6 +93,28 @@ class User extends Authenticatable implements JWTSubject
         return $value;
     }
 
+
+    public function getThumbAttribute($value): string | null
+    {
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+        if (request()->is('api/*') && ! empty($value)) {
+
+            return url($value);
+        }
+        return $value;
+    }
+
+
+
+
+
+
+
+
+
+
     public function getLogoPathAttribute($value): string | null
     {
         if (filter_var($value, FILTER_VALIDATE_URL)) {

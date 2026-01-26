@@ -29,6 +29,7 @@ class ProfessionalProfileController extends Controller
             'postal_code'        => 'required',
             'country'            => 'required',
             'bio'                => 'required',
+            'thumb'              => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
 
         ]);
 
@@ -37,6 +38,17 @@ class ProfessionalProfileController extends Controller
         }
 
         $prof_info = auth('api')->user();
+
+
+        if ($request->hasFile('thumb')) {
+            if ($prof_info->thumb) {
+                Helper::deleteImage($prof_info->thumb);
+            }
+            $thumb = Helper::uploadImage($request->file('thumb'), 'profile');
+
+            $prof_info->thumb = $thumb;
+            $prof_info->save();
+        }
 
         $prof_info->update([
             'professional_name'  => $request->professional_name ?? null,
@@ -50,6 +62,7 @@ class ProfessionalProfileController extends Controller
             'postal_code'        => $request->postal_code ?? null,
             'country'            => $request->country ?? null,
             'bio'                => $request->bio ?? null,
+
         ]);
 
         // Only return the updated business profile fields
@@ -67,6 +80,7 @@ class ProfessionalProfileController extends Controller
             'postal_code'        => $prof_info->postal_code,
             'country'            => $prof_info->country,
             'bio'                => $prof_info->bio,
+            'thumb'              => $prof_info->thumb,
         ];
 
         return $this->success($prof_info, 'Professional profile updated successfully', 200);
