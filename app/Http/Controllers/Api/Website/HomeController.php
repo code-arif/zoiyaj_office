@@ -177,7 +177,14 @@ class HomeController extends Controller
     // preference list
     public function preference_list(Request $request)
     {
-        $preferences = DB::table('preferences')->get();
+        $preferences = DB::table('preferences')
+        ->when($request->has('type'), function ($query) use ($request) {
+            $query->where('type', $request->type);
+        })
+        ->get();
+
+
+
 
         if ($preferences->isEmpty()) {
             return $this->error([], 'No Preference found');
