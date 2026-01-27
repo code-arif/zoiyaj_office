@@ -2,12 +2,12 @@
 namespace App\Http\Controllers\Api\Professional;
 
 use App\Helpers\Helper;
-use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
-use App\Models\ProfessionalBrand;
 use App\Http\Controllers\Controller;
+use App\Models\ProfessionalBrand;
 use App\Models\ProfessionalCategory;
 use App\Models\ProfessionalSpecialty;
+use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ProfessionalProfileController extends Controller
@@ -29,7 +29,7 @@ class ProfessionalProfileController extends Controller
             'postal_code'        => 'required',
             'country'            => 'required',
             'bio'                => 'required',
-            'thumb'              => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'thumb'              => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
         ]);
 
@@ -38,7 +38,6 @@ class ProfessionalProfileController extends Controller
         }
 
         $prof_info = auth('api')->user();
-
 
         if ($request->hasFile('thumb')) {
             if ($prof_info->thumb) {
@@ -69,7 +68,7 @@ class ProfessionalProfileController extends Controller
         $prof_info = [
             'id'                 => $prof_info->id,
             'role'               => $prof_info->role,
-            'professional_name'  => $prof_info->professional_name ,
+            'professional_name'  => $prof_info->professional_name,
             'professional_phone' => $prof_info->professional_phone,
             'professional_email' => $prof_info->professional_email,
             'address'            => $prof_info->address,
@@ -234,8 +233,6 @@ class ProfessionalProfileController extends Controller
         return $this->success($user, 'Professional brands updated successfully', 200);
     }
 
-
-
     public function setup_category(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -254,10 +251,10 @@ class ProfessionalProfileController extends Controller
         if (! empty($request->category_id)) {
             $categories = collect($request->category_id)->map(function ($id) use ($user) {
                 return [
-                    'user_id'    => $user->id,
-                    'category_id'   => $id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'user_id'     => $user->id,
+                    'category_id' => $id,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
                 ];
             })->toArray();
 
@@ -268,23 +265,6 @@ class ProfessionalProfileController extends Controller
         $user->load('user_categories');
         return $this->success($user, 'Professional categories updated successfully', 200);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public function services(Request $request)
     {
@@ -297,6 +277,7 @@ class ProfessionalProfileController extends Controller
             'services.*.name'           => 'required|string|max:100',
             'services.*.starting_price' => 'required|numeric|min:0',
             'services.*.duration'       => 'nullable|string|max:50',
+            'services.*.image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -332,11 +313,20 @@ class ProfessionalProfileController extends Controller
 
         $user->services()->delete();
 
-        foreach ($request->input('services', []) as $serviceData) {
+        foreach ($request->services as $index => $serviceData) {
+
+            $image = null;
+
+            if ($request->hasFile("services.$index.image")) {
+                $imageFile = $request->file("services.$index.image");
+                $image     = Helper::uploadImage($imageFile, 'services');
+            }
+
             $user->services()->create([
                 'name'           => $serviceData['name'],
                 'starting_price' => $serviceData['starting_price'],
                 'duration'       => $serviceData['duration'] ?? null,
+                'image'          => $image,
             ]);
         }
 
@@ -383,9 +373,8 @@ class ProfessionalProfileController extends Controller
             'working_hours'      => $user->working_hours,
             'accessibilties'     => json_decode($user->accessibilties),
             'services'           => $user->services,
-            'brands' => $user->user_brands->load('brand'),
-            'categories' => $user->user_categories->load('category'),
-
+            'brands'             => $user->user_brands->load('brand'),
+            'categories'         => $user->user_categories->load('category'),
 
         ];
 

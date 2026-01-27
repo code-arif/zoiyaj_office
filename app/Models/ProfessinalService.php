@@ -9,11 +9,32 @@ class ProfessinalService extends Model
         'user_id',
         'name',
         'starting_price',
-        'duration'
+        'duration',
+        'image',
 
     ];
 
+
     protected $table = 'professinal_services';
+
+
+    // imageurl attribute
+    public function getImageAttribute($value): string | null
+    {
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+        if (request()->is('api/*') && ! empty($value)) {
+
+            return url($value);
+        }
+        return $value;
+    }
+
+
+
+
+
 
     public function professional()
     {
