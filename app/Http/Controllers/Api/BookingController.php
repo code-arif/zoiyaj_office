@@ -11,6 +11,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Nette\Utils\Random;
 
 class BookingController extends Controller
 {
@@ -152,23 +153,55 @@ class BookingController extends Controller
                     ->whereHas('serviceBookings', function ($query) use ($today) {
                         $query->where('scheduled_date', '>=', $today);
                     })
-                    ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                    // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
                     ->get();
             } elseif ($type == 'completed') {
                 $bookings = Booking::where('user_id', $user->id)
                     ->where('status', 'completed')
-                    ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                    // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
                     ->get();
             } elseif ($type == 'cancelled') {
                 $bookings = Booking::where('user_id', $user->id)
                     ->where('status', 'cancelled')
-                    ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                    // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
                     ->get();
             } else {
                 $bookings = Booking::where('user_id', $user->id)
-                    ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                    // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
                     ->get();
             }
+
+
+            $bookings = $bookings->map(function ($booking) {
+                return [
+                    'id'         => $booking->id,
+                    'owner_id'   => $booking->owner_id,
+                    'user_id'    => $booking->user_id,
+                    'date'       => $booking->date,
+                    'status'     => $booking->status,
+                    'points'     => $booking->points,
+                    'notes'      => $booking->notes,
+                    'created_at' => $booking->created_at,
+                    'updated_at' => $booking->updated_at,
+
+                    'services'   => $booking->serviceBookings()->with('service')->get(),
+
+                    'times'      => DB::table('service_booking_times')->where('booking_id', $booking->id)->get() ?? null,
+
+                    'owner'      => [
+                        'id'         => $booking->owner->id,
+                        'first_name' => $booking->owner->first_name,
+                        'last_name'  => $booking->owner->last_name,
+                        'avatar'     => $booking->owner->avatar,
+                        'thumb'      => $booking->owner->thumb,
+                        'location'   => $booking->owner->address . ', ' . $booking->owner->city . ', ' . $booking->owner->country,
+                        'total_reviews' => Random::generate(1, '0-9'),
+                        'total_reatings' => Random::generate(1, '0-9'),
+                    ],
+
+                ];
+            });
+
 
             return $this->success($bookings, 'User bookings retrieved successfully.', 200);
         } catch (\Exception $e) {
@@ -242,18 +275,11 @@ class BookingController extends Controller
                         'last_name'  => $booking->user->last_name,
                         'avatar'     => $booking->user->avatar,
                         'thumb'      => $booking->user->thumb,
+                        'location'   => $booking->user->location,
                     ],
 
                 ];
             });
-
-
-
-
-
-
-
-
 
             return $this->success($data, 'Professional bookings retrieved successfully.', 200);
         } catch (\Exception $e) {
