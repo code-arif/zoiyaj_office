@@ -113,7 +113,7 @@ class CategoryController extends Controller
             ], 404);
         }
 
-        return response()->json($category);
+        return view('backend.layouts.category.edit', compact('category'));
     }
 
 
