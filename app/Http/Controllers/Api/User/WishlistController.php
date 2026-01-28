@@ -37,7 +37,7 @@ class WishlistController extends Controller
             ];
         });
 
-        return $this->success($data, 'Wishlist retrieved successfully.');
+        return $this->success($data, 'Bookmark retrieved successfully.');
     }
 
     public function toggle(Request $request)
