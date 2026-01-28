@@ -172,13 +172,7 @@ Route::get('/salon/detail/{professional_id}', [ClientHomeController::class, 'sal
 //     Route::get('/subscription/status', [SubscriptionController::class, 'subscriptionStatus']);
 // });
 
-// Route::middleware('auth:api')->prefix('auth')->group(function () {
 
-//     Route::get('/wishlist/list', [WishlistController::class, 'index'])->name('wishlist.index');
-//     Route::post('/wishlist/store', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-
-//     Route::get('similar/book/list', [HomeController::class, 'similar_book_list']);
-// });
 
 // Route::middleware('auth:api')->prefix('auth')->group(function () {
 
@@ -269,6 +263,14 @@ Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(func
 
     Route::get('/client/reviews', [\App\Http\Controllers\Api\BookingController::class, 'getClientReviewBookings']);
     Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
+});
+
+
+
+Route::middleware('auth:api')->prefix('auth')->group(function () {
+
+    Route::get('/bookmark/list', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/bookmark/store', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 });
 
 

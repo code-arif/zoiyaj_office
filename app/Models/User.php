@@ -310,6 +310,15 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
+    // bookmarks
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class, 'client_id', 'id');
+    }
+
+
+
+
 
 
 }

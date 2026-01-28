@@ -2,89 +2,84 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Models\Wishlist;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Traits\ApiResponse;
+use App\Models\Bookmark;
+use Illuminate\Support\Facades\Validator;
 
 class WishlistController extends Controller
 {
     use ApiResponse;
-
-
-
-
 
     // index
     public function index(Request $request)
     {
         $user = auth('api')->user();
 
-        $wishlistedBooks = Wishlist::with('book')
-            ->where('user_id', $user->id)
+        $bookmarks = Bookmark::with('professional')
+            ->where('client_id', $user->id)
             ->get();
 
 
-
-        $data = $wishlistedBooks->map(function ($wishlist) {
-            $book = $wishlist->book;
+        $data = $bookmarks->map(function ($bookmark) {
+            $professional = $bookmark->professional;
             return [
-                'id'          => $book->id,
-                'title'       => $book->title ?? null,
-                'type' => $book->type,
-                'author'      => $book->author ?? null,
-                'cover_image' => $book->cover_image ? url($book->cover_image) : null,
-                'description' => $book->description ?? null,
-                'added_at'    => $wishlist->added_at,
-                'rating'      => $book->book_reviews->average('rating') ?? 0,
-                'no_of_reviews' => $book->book_reviews->count() ?? 0,
-                'is_bookmarked' => $wishlist ? true : false,
-
+                'id'            => $professional->id,
+                'professional_name' => $professional->professional_name,
+                'thumb'         => $professional->thumb,
+                'location'      => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
+                'added_at'      => $bookmark->added_at,
+                'total_rating'        => $professional->professionalReviews->avg('rating') ?? 0,
+                'no_of_reviews' => $professional->professionalReviews->count() ?? 0,
+                'services'      => $professional->services()->first(),
+                'working_hours' => $professional->working_hours()->first(),
             ];
         });
 
         return $this->success($data, 'Wishlist retrieved successfully.');
     }
 
-
-
-
-
-
-
-
-
-
     public function toggle(Request $request)
     {
 
-        $user = auth('api')->user();
-        $book_id = $request->book_id;
+        $validator = Validator::make($request->all(), [
+            'professional_id' => 'required|exists:users,id',
+        ]);
 
-        $exists = Wishlist::where('user_id', $user->id)
-            ->where('book_id', $book_id)
+        if ($validator->fails()) {
+            return $this->error([], $validator->errors()->first(), 422);
+        }
+
+        $user    = auth('api')->user();
+
+
+        $professional_id = $request->professional_id;
+
+        $exists = Bookmark::where('client_id', $user->id)
+            ->where('professional_id', $professional_id)
             ->exists();
 
         if ($exists) {
-            Wishlist::where('user_id', $user->id)
-                ->where('book_id', $book_id)
+            Bookmark::where('client_id', $user->id)
+                ->where('professional_id', $professional_id)
                 ->delete();
-            $message    = 'Removed from wishlist';
+            $message    = 'Removed from bookmark';
             $inWishlist = false;
         } else {
-            Wishlist::create([
-                'user_id' => $user->id,
-                'book_id' => $book_id,
+            Bookmark::create([
+                'client_id' => $user->id,
+                'professional_id' => $professional_id,
             ]);
-            $message    = 'Added to wishlist';
+            $message    = 'Added to bookmark';
             $inWishlist = true;
         }
 
-        $count = $user->wishlistedBooks()->count();
-
+        $count = $user->bookmarks()->count();
 
         $data = [
             'in_wishlist' => $inWishlist,
-            'total_count' => $count
+            'total_count' => $count,
         ];
 
         return $this->success($data, $message);

@@ -89,7 +89,8 @@ class HomeController extends Controller
                 'professional_name' => $professional->professional_name,
                 'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
                 'thumb'             => $professional->thumb,
-                'total_ratings'     => "5.0",
+                'total_ratings'     => $professional->professionalReviews->avg('rating') ?? 0,
+                'total_reviews'     => $professional->professionalReviews->count() ?? 0,
                 'working_hours'     => $professional->working_hours()->first(),
                 'services'          => $professional->services()->first(),
             ];
