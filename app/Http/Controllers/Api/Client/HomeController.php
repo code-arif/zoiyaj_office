@@ -23,10 +23,10 @@ class HomeController extends Controller
         }
 
         $professionals = User::where('role', 'professional')
-            ->whereHas('user_categories', function ($query) use ($category_id) {
+            ->whereHas('professionalServices', function ($query) use ($category_id) {
                 $query->where('category_id', $category_id);
             })
-            ->with(['user_categories.category'])
+            ->with(['professionalServices.category'])
             ->get();
 
         $data = $professionals->map(function ($professional) {
@@ -38,6 +38,7 @@ class HomeController extends Controller
                 'total_ratings'     => "5.0",
                 'working_hours'     => $professional->working_hours()->first(),
                 'services'          => $professional->services()->first(),
+
             ];
         });
 
@@ -69,10 +70,6 @@ class HomeController extends Controller
                 'total_services' => $category->professionalServices()->count(),
             ];
         });
-
-
-
-
 
 
 

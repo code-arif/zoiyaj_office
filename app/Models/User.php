@@ -288,5 +288,12 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
+    // professional services
+    public function professionalServices()
+    {
+        return $this->hasMany(ProfessinalService::class, 'user_id', 'id');
+    }
+
+
 
 }

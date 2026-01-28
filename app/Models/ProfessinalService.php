@@ -51,4 +51,9 @@ class ProfessinalService extends Model
     {
         return $this->hasMany(ServiceReview::class, 'service_id', 'id');
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
+    }
 }
