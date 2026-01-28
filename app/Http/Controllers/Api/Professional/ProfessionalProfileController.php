@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api\Professional;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\ProfessionalBrand;
 use App\Models\ProfessionalCategory;
 use App\Models\ProfessionalSpecialty;
@@ -233,51 +234,53 @@ class ProfessionalProfileController extends Controller
         return $this->success($user, 'Professional brands updated successfully', 200);
     }
 
-    public function setup_category(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'category_id'   => 'required|array',
-            'category_id.*' => 'exists:categories,id',
-        ]);
+    // public function setup_category(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'category_id'   => 'required|array',
+    //         'category_id.*' => 'exists:categories,id',
+    //     ]);
 
-        if ($validator->fails()) {
-            return $this->error($validator->errors(), 'Validation failed', 422);
-        }
+    //     if ($validator->fails()) {
+    //         return $this->error($validator->errors(), 'Validation failed', 422);
+    //     }
 
-        $user = auth('api')->user();
+    //     $user = auth('api')->user();
 
-        // Sync categories (delete old and insert new)
-        $user->user_categories()->delete();
-        if (! empty($request->category_id)) {
-            $categories = collect($request->category_id)->map(function ($id) use ($user) {
-                return [
-                    'user_id'     => $user->id,
-                    'category_id' => $id,
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
-                ];
-            })->toArray();
+    //     // Sync categories (delete old and insert new)
+    //     $user->user_categories()->delete();
+    //     if (! empty($request->category_id)) {
+    //         $categories = collect($request->category_id)->map(function ($id) use ($user) {
+    //             return [
+    //                 'user_id'     => $user->id,
+    //                 'category_id' => $id,
+    //                 'created_at'  => now(),
+    //                 'updated_at'  => now(),
+    //             ];
+    //         })->toArray();
 
-            ProfessionalCategory::insert($categories);
-        }
+    //         ProfessionalCategory::insert($categories);
+    //     }
 
-        // Load updated categories
-        $user->load('user_categories');
-        return $this->success($user, 'Professional categories updated successfully', 200);
-    }
+    //     // Load updated categories
+    //     $user->load('user_categories');
+    //     return $this->success($user, 'Professional categories updated successfully', 200);
+    // }
 
     public function services(Request $request)
     {
+        // dd($request->all());
 
         $validator = Validator::make($request->all(), [
             'logo'                      => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'certificate'               => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:5120',
 
             'services'                  => 'required|array|min:1',
-            'services.*.name'           => 'required|string|max:100',
+            // 'services.*.name'           => 'required|string|max:100',
             'services.*.starting_price' => 'required|numeric|min:0',
             'services.*.duration'       => 'nullable|string|max:50',
-            'services.*.image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'services.*.category_id'    => 'required|integer|exists:categories,id',
+            // 'services.*.image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -315,18 +318,21 @@ class ProfessionalProfileController extends Controller
 
         foreach ($request->services as $index => $serviceData) {
 
-            $image = null;
+            // $image = null;
 
-            if ($request->hasFile("services.$index.image")) {
-                $imageFile = $request->file("services.$index.image");
-                $image     = Helper::uploadImage($imageFile, 'services');
-            }
+            // if ($request->hasFile("services.$index.image")) {
+            //     $imageFile = $request->file("services.$index.image");
+            //     $image     = Helper::uploadImage($imageFile, 'services');
+            // }
+
+            $category = Category::find($serviceData['category_id']);
 
             $user->services()->create([
-                'name'           => $serviceData['name'],
+                'name'           => $category ? $category->title : 'Service',
+                'category_id'  => $category ? $category->id : null,
                 'starting_price' => $serviceData['starting_price'],
                 'duration'       => $serviceData['duration'] ?? null,
-                'image'          => $image,
+                'image'          => $category && $category->image ? $category->image : null,
             ]);
         }
 
@@ -374,7 +380,7 @@ class ProfessionalProfileController extends Controller
             'accessibilties'     => json_decode($user->accessibilties),
             'services'           => $user->services,
             'brands'             => $user->user_brands->load('brand'),
-            'categories'         => $user->user_categories->load('category'),
+            // 'categories'         => $user->user_categories->load('category'),
 
         ];
 

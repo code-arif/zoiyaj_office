@@ -11,6 +11,7 @@ class ProfessinalService extends Model
         'starting_price',
         'duration',
         'image',
+        'category_id',
 
     ];
 

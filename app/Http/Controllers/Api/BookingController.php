@@ -1,17 +1,18 @@
 <?php
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Models\ServiceBooking;
-use App\Models\ServiceBookingTime;
-use App\Models\ServiceReview;
 use App\Models\User;
+use App\Models\Booking;
+use Nette\Utils\Random;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\ServiceReview;
+use App\Models\ServiceBooking;
+use App\Models\ProfessinalService;
+use App\Models\ServiceBookingTime;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Nette\Utils\Random;
+use App\Http\Controllers\Controller;
 
 class BookingController extends Controller
 {
@@ -77,9 +78,14 @@ class BookingController extends Controller
             // }
 
             $bookingCollection = collect($request->service_ids)->map(function ($serviceId) use ($request, $booking) {
+
+
+                $service = ProfessinalService::find($serviceId);
+
                 return [
                     'booking_id'     => $booking->id,
                     'service_id'     => $serviceId,
+                    'category_id'    => $service->category_id,
                     'scheduled_date' => $request->scheduled_date,
                 ];
             })->toArray();
