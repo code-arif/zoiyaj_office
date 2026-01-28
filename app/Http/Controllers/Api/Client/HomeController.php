@@ -55,12 +55,28 @@ class HomeController extends Controller
             },
 
         ])
-        ->whereHas('professionalServices')
+        ->whereHas('serviceBookings')
 
             ->take(10)
             ->get();
 
-        return $this->success($categories, 'Popular categories fetched successfully.', 200);
+        $data = $categories->map(function ($category) {
+            return [
+                'id'          => $category->id,
+                'title'       => $category->title,
+                'image'       => $category->image,
+                'user_count'  => $category->user_count,
+                'total_services' => $category->professionalServices()->count(),
+            ];
+        });
+
+
+
+
+
+
+
+        return $this->success($data, 'Popular categories fetched successfully.', 200);
     }
 
     public function nearby_salon_list(Request $request)
