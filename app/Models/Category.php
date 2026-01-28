@@ -9,7 +9,7 @@ class Category extends Model
 
     protected $table = 'categories';
 
-    protected $hidden = ['created_at',  'updated_at', 'status'];
+    protected $hidden = ['created_at', 'updated_at', 'status'];
 
     public function products()
     {
@@ -27,11 +27,19 @@ class Category extends Model
         return $this->hasMany(ProductModel::class, 'category_id', 'id');
     }
 
-
-
     public function professionalServices()
     {
         return $this->hasMany(ProfessinalService::class, 'category_id', 'id');
     }
+
+
+    // New: bookings through professional services
+    public function serviceBookings()
+    {
+
+        return $this->hasMany(ServiceBooking::class, 'category_id', 'id');
+    }
+
+
 
 }

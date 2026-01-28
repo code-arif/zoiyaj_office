@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Nette\Utils\Random;
 
 class HomeController extends Controller
@@ -47,9 +48,17 @@ class HomeController extends Controller
     // popular categories
     public function popular_categories(Request $request)
     {
-        $categories = Category::orderBy('created_at', 'desc')
-            ->whereHas('professionalServices')
-            ->take(10)->get();
+        $categories = Category::withCount([
+            // Distinct users who created services
+            'professionalServices as user_count' => function ($query) {
+                $query->select(DB::raw('COUNT(DISTINCT user_id)'));
+            },
+
+        ])
+        ->whereHas('professionalServices')
+
+            ->take(10)
+            ->get();
 
         return $this->success($categories, 'Popular categories fetched successfully.', 200);
     }
