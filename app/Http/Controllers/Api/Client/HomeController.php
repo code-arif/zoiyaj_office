@@ -47,7 +47,9 @@ class HomeController extends Controller
     // popular categories
     public function popular_categories(Request $request)
     {
-        $categories = Category::orderBy('created_at', 'desc')->take(10)->get();
+        $categories = Category::orderBy('created_at', 'desc')
+            ->whereHas('professionalServices')
+            ->take(10)->get();
 
         return $this->success($categories, 'Popular categories fetched successfully.', 200);
     }
@@ -83,8 +85,6 @@ class HomeController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-
-
         $data = $professionals->map(function ($professional) {
             return [
                 'id'                => $professional->id,
@@ -92,14 +92,12 @@ class HomeController extends Controller
                 'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
                 'thumb'             => $professional->thumb,
                 'total_ratings'     => "5.0",
-                'category_type'         => $professional->user_categories()->first() ? $professional->user_categories()->first()->category->title : "All Stylist",
+                'category_type'     => $professional->user_categories()->first() ? $professional->user_categories()->first()->category->title : "All Stylist",
                 'total_reviews'     => Random::generate(2, '0-9'),
                 'working_hours'     => $professional->working_hours()->first(),
                 'services'          => $professional->services()->first(),
             ];
         });
-
-
 
         return $this->success($data, 'Top Stylist salon fetched successfully.', 200);
 
@@ -132,9 +130,6 @@ class HomeController extends Controller
     //     return $this->success($data, 'Top Stylist salon fetched successfully.', 200);
     // }
 
-
-
-
     public function salon_detail(Request $request, $professional_id)
     {
         $professional = User::where('role', 'professional')
@@ -156,10 +151,10 @@ class HomeController extends Controller
             'bio'               => $professional->bio,
             'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
             'thumb'             => $professional->thumb,
-             'total_ratings'     => round($professional->avg_rating, 1),
+            'total_ratings'     => round($professional->avg_rating, 1),
             'total_reviews'     => Random::generate(2, '0-9'),
             'total_followers'   => Random::generate(3, '0-9'),
-            'portfolio'  => $professional->portfolios,
+            'portfolio'         => $professional->portfolios,
 
             'categories'        => $professional->user_categories->map(function ($user_category) {
                 return [
@@ -174,17 +169,5 @@ class HomeController extends Controller
 
         return $this->success($data, 'Professional details fetched successfully.', 200);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

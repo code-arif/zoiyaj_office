@@ -27,4 +27,11 @@ class Category extends Model
         return $this->hasMany(ProductModel::class, 'category_id', 'id');
     }
 
+
+
+    public function professionalServices()
+    {
+        return $this->hasMany(ProfessinalService::class, 'category_id', 'id');
+    }
+
 }
