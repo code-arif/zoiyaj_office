@@ -181,6 +181,7 @@ class BookingController extends Controller
             $bookings = $bookings->map(function ($booking) {
                 return [
                     'id'         => $booking->id,
+                    'booking_id' => $booking->id,
                     'owner_id'   => $booking->owner_id,
                     'user_id'    => $booking->user_id,
                     'date'       => $booking->date,

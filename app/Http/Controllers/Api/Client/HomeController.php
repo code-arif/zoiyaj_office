@@ -99,41 +99,12 @@ class HomeController extends Controller
 
     }
 
-    public function top_stylist_salon_list(Request $request)
-    {
-
-        $professionals = User::where('role', 'professional')
-            ->with(['user_categories.category'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $data = $professionals->map(function ($professional) {
-            return [
-                'id'                => $professional->id,
-                'professional_name' => $professional->professional_name,
-                'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
-                'thumb'             => $professional->thumb,
-                'total_ratings'     => "5.0",
-                'category_type'     => $professional->user_categories()->first() ? $professional->user_categories()->first()->category->title : "All Stylist",
-                'total_reviews'     => Random::generate(2, '0-9'),
-                'working_hours'     => $professional->working_hours()->first(),
-                'services'          => $professional->services()->first(),
-            ];
-        });
-
-        return $this->success($data, 'Top Stylist salon fetched successfully.', 200);
-
-    }
-
     // public function top_stylist_salon_list(Request $request)
     // {
+
     //     $professionals = User::where('role', 'professional')
     //         ->with(['user_categories.category'])
-    //         ->withAvg('reviews as avg_rating', 'rating')
-    //         ->withCount('reviews as total_reviews')
-    //         ->having('total_reviews', '>', 0) // যাদের review আছে শুধু তারা
-    //         ->orderByDesc('avg_rating')       // highest rating first
-    //         ->limit(10)                       // top 10
+    //         ->orderBy('created_at', 'desc')
     //         ->get();
 
     //     $data = $professionals->map(function ($professional) {
@@ -141,16 +112,52 @@ class HomeController extends Controller
     //             'id'                => $professional->id,
     //             'professional_name' => $professional->professional_name,
     //             'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
-    //             'avatar'            => $professional->avatar,
-    //             'total_ratings'     => round($professional->avg_rating, 1),
-    //             'total_reviews'     => $professional->total_reviews,
+    //             'thumb'             => $professional->thumb,
+    //             'total_ratings'     => "5.0",
+    //             'category_type'     => $professional->user_categories()->first() ? $professional->user_categories()->first()->category->title : "All Stylist",
+    //             'total_reviews'     => Random::generate(2, '0-9'),
     //             'working_hours'     => $professional->working_hours()->first(),
     //             'services'          => $professional->services()->first(),
     //         ];
     //     });
 
     //     return $this->success($data, 'Top Stylist salon fetched successfully.', 200);
+
     // }
+
+    public function top_stylist_salon_list(Request $request)
+    {
+        $professionals = User::where('role', 'professional')
+            ->with(['user_categories.category'])
+            ->withAvg('ProfessionalReviews as avg_rating', 'rating')
+            ->withCount('ProfessionalReviews as total_reviews')
+            ->having('total_reviews', '>', 0)
+            ->orderByDesc('avg_rating')
+            ->limit(10)
+            ->get();
+
+        if ($professionals->isEmpty()) {
+            return $this->error(null, 'No top stylists found.', 404);
+        }
+
+
+
+
+        $data = $professionals->map(function ($professional) {
+            return [
+                'id'                => $professional->id,
+                'professional_name' => $professional->professional_name,
+                'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
+                'avatar'            => $professional->avatar,
+                'total_ratings'     => round($professional->avg_rating, 1),
+                'total_reviews'     => $professional->total_reviews,
+                'working_hours'     => $professional->working_hours()->first(),
+                'services'          => $professional->services()->first(),
+            ];
+        });
+
+        return $this->success($data, 'Top Stylist salon fetched successfully.', 200);
+    }
 
     public function salon_detail(Request $request, $professional_id)
     {
