@@ -3,20 +3,14 @@
 
 use App\Http\Controllers\Api\BarcodeController;
 use App\Http\Controllers\Api\Client\HomeController as ClientHomeController;
+use App\Http\Controllers\Api\Client\PhotoScanController;
 use App\Http\Controllers\Api\Client\ProfileSetupController;
 use App\Http\Controllers\Api\Professional\PortfolioController;
 use App\Http\Controllers\Api\Professional\ProfessionalProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
-use App\Http\Controllers\Api\Seller\BusinessPayoutController;
-use App\Http\Controllers\Api\Seller\DashboardController;
-use App\Http\Controllers\Api\Seller\OrderController;
-use App\Http\Controllers\Api\Seller\PhysicalBookController;
-use App\Http\Controllers\Api\Seller\StripeOnboardingController;
 use App\Http\Controllers\Api\User\Auth\AuthenticationController;
 use App\Http\Controllers\Api\User\Auth\SocialLoginController;
 use App\Http\Controllers\Api\User\Auth\UserProfileController;
-use App\Http\Controllers\Api\User\BookCompletionController;
-use App\Http\Controllers\Api\User\BookReviewController;
 use App\Http\Controllers\Api\User\ChatSystemController;
 use App\Http\Controllers\Api\User\PhysicalOrderController;
 use App\Http\Controllers\Api\User\SubscriptionController;
@@ -61,8 +55,6 @@ Route::put('/user/preferences', [UserPreferenceController::class, 'update']);   
 Route::delete('/user/preferences', [UserPreferenceController::class, 'destroy']); // Delete by user_id
 
 //*****Rayhan is create in CRUD============================================================ */
-
-
 
 Broadcast::routes([
     'middleware' => ['auth:api'], // or 'auth:jwt' depending on guard
@@ -141,12 +133,7 @@ Route::middleware(['auth:professional', 'role:professional'])->prefix('auth-prof
 Route::get('/subscription/plan', [SubscriptionController::class, 'getPlans']);
 Route::get('/subscription/plan/{id}', [SubscriptionController::class, 'getPlanDetails']);
 
-
-
-
-
 Route::get('/categories/salon-list/{category_id}', [ClientHomeController::class, 'salon_category_list']);
-
 
 // popular categories
 Route::get('/popular/categories/list', [ClientHomeController::class, 'popular_categories']);
@@ -155,8 +142,6 @@ Route::get('/top-stylist/salon/list', [ClientHomeController::class, 'top_stylist
 
 // salon detail
 Route::get('/salon/detail/{professional_id}', [ClientHomeController::class, 'salon_detail']);
-
-
 
 // Route::middleware('auth:api')->prefix('auth')->group(function () {
 
@@ -172,17 +157,11 @@ Route::get('/salon/detail/{professional_id}', [ClientHomeController::class, 'sal
 //     Route::get('/subscription/status', [SubscriptionController::class, 'subscriptionStatus']);
 // });
 
-
-
 // Route::middleware('auth:api')->prefix('auth')->group(function () {
 
 //     Route::get('/book/completion/list', [BookCompletionController::class, 'index'])->name('book.completion.index');
 //     Route::post('/book/completion/store', [BookCompletionController::class, 'toggle'])->name('book.completion.toggle');
 // });
-
-
-
-
 
 // book review routes
 // Route::middleware('auth:api')->prefix('auth')->group(function () {
@@ -240,12 +219,12 @@ Route::get('/salon/detail/{professional_id}', [ClientHomeController::class, 'sal
 |-------------------------------
 */
 Route::middleware(['auth:api'])->prefix('auth/chat')->group(function () {
-    Route::get('list', [ChatSystemController::class, 'list']); // List users with search & pagination
+    Route::get('list', [ChatSystemController::class, 'list']);                               // List users with search & pagination
     Route::get('conversation/{receiver_id}', [ChatSystemController::class, 'conversation']); // Get conversation messages
-    Route::post('send/{receiver_id}', [ChatSystemController::class, 'send']); // Send message
-    Route::get('room/{receiver_id}', [ChatSystemController::class, 'room']); // Get or create room
-    Route::get('seen/all/{receiver_id}', [ChatSystemController::class, 'seenAll']); // Mark all messages as read
-    Route::get('seen/single/{chat_id}', [ChatSystemController::class, 'seenSingle']); // Mark single message as read
+    Route::post('send/{receiver_id}', [ChatSystemController::class, 'send']);                // Send message
+    Route::get('room/{receiver_id}', [ChatSystemController::class, 'room']);                 // Get or create room
+    Route::get('seen/all/{receiver_id}', [ChatSystemController::class, 'seenAll']);          // Mark all messages as read
+    Route::get('seen/single/{chat_id}', [ChatSystemController::class, 'seenSingle']);        // Mark single message as read
 });
 
 // payment manage
@@ -265,18 +244,11 @@ Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(func
     Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
 });
 
-
-
 Route::middleware('auth:api')->prefix('auth')->group(function () {
 
     Route::get('/bookmark/list', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/bookmark/store', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 });
-
-
-
-
-
 
 Route::middleware(['auth:professional', 'role:professional'])->prefix('booking')->group(function () {
     Route::get('/professional', [\App\Http\Controllers\Api\BookingController::class, 'getProfessionalBookings']);
@@ -295,3 +267,7 @@ Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(
     // information
     Route::get('about/me', [ProfileSetupController::class, 'about_me']);
 });
+
+// photo scanner api
+
+Route::post('/photo/scan', [PhotoScanController::class, 'analyze']);

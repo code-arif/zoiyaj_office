@@ -111,6 +111,33 @@
                     </a>
                 </li>
 
+
+
+            {{-- redeem --}}
+                <li class="slide">
+                    <a class="side-menu__item {{ request()->routeIs('redeem-tiers') ? 'has-link' : '' }}"
+                        href="{{ route('admin.redeem_tiers.index') }}">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="24" height="24"
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M18 2H6a2 2 0 0 0-2 2v16a1 1 0 0 0 1.447.894L12 18l6.553 2.894A1 1 0 0 0 20 20V4a2 2 0 0 0-2-2zM6 4h12v13.382l-5.553-2.353a1 1 0 0 0-.894 0L6 17.382V4z" />
+                        </svg>
+
+                        <span class="side-menu__label">Redeem Tiers</span>
+                    </a>
+                </li>
+
+
+
+
+
+
+
+
+
+
+
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('bookings') ? 'has-link' : '' }}"
                         href="{{ route('admin.bookings.index') }}">
