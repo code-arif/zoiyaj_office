@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api\Client;
 
 use App\Http\Controllers\Controller;
@@ -16,7 +15,7 @@ class PhotoScanController extends Controller
         $imageFile = $request->file('image');
         $apiKey    = env('SKIN_API_KEY');
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             return response()->json(['error' => 'SKIN_API_KEY is not configured in .env'], 500);
         }
 
@@ -55,7 +54,7 @@ class PhotoScanController extends Controller
             'Content-Type'   => $imageFile->getMimeType(),
             'Content-Length' => $imageFile->getSize(),
         ])->withBody(file_get_contents($imageFile->path()), $imageFile->getMimeType())
-          ->put($uploadUrl);
+            ->put($uploadUrl);
 
         if ($uploadResponse->failed()) {
             Log::error('Image upload to Perfect Corp failed', [
@@ -102,7 +101,7 @@ class PhotoScanController extends Controller
         // Step 4: Poll for analysis result
         // ────────────────────────────────────────────────
         $maxAttempts = 60;
-        $results = null;
+        $results     = null;
 
         for ($i = 0; $i < $maxAttempts; $i++) {
             sleep(1);
@@ -138,8 +137,7 @@ class PhotoScanController extends Controller
             if (isset($concern['type']) &&
                 $concern['type'] !== 'all' &&
                 $concern['type'] !== 'skin_age' &&
-                $concern['type'] !== 'resize_image')
-            {
+                $concern['type'] !== 'resize_image') {
                 $allConcerns[] = $concern['type'];
             }
         }
@@ -163,46 +161,50 @@ class PhotoScanController extends Controller
      */
     private function getProductRecommendations(array $concerns)
     {
-        $products = [];
+        $products   = [];
         $serpApiKey = env('SERPAPI_KEY');
 
-        if (!$serpApiKey) {
-            Log::warning('SERPAPI_KEY not set in .env - skipping product recommendations');
+        if (! $serpApiKey) {
+            Log::warning('SERPAPI_KEY not set - skipping products');
             return $products;
         }
 
-        // Remove duplicates to avoid too many API calls
-        $uniqueConcerns = array_unique($concerns);
-
-        foreach ($uniqueConcerns as $concern) {
+        foreach ($concerns as $concern) {
             $query = ucfirst($concern) . ' skincare product recommendation';
 
             try {
                 $response = Http::get('https://serpapi.com/search', [
-                    'engine'  => 'google_shopping',
-                    'q'       => $query,
-                    'api_key' => $serpApiKey,
-                    'num'     => 3, // 3 products per concern
+                    'engine'   => 'google_shopping',
+                    'q'        => $query,
+                    'api_key'  => $serpApiKey,
+                    'num'      => 3,
+                    'location' => 'United States', // optional - better results
+                    'gl'       => 'us',            // country code
+                    'hl'       => 'en',            // language
+                    'device'   => 'mobile',        // mobile results (better for app)
                 ]);
 
                 if ($response->successful()) {
                     $shoppingResults = $response->json()['shopping_results'] ?? [];
                     foreach ($shoppingResults as $item) {
+                        // Full direct purchase link (not shortened)
+                        $directLink = $item['link'] ?? $item['source_link'] ?? $item['product_link'] ?? '#';
+
                         $products[] = [
                             'title'     => $item['title'] ?? 'N/A',
-                            'price'     => $item['price'] ?? 'N/A',
-                            'link'      => $item['link'] ?? '#',
+                            'price'     => $item['price'] ?? $item['extracted_price'] ?? 'N/A',
+                            'store'     => $item['source'] ?? 'Unknown Store',
+                            'link'      => $directLink, // এখানে full link আসবে
                             'thumbnail' => $item['thumbnail'] ?? null,
                             'concern'   => $concern,
                         ];
                     }
                 }
             } catch (\Exception $e) {
-                Log::warning("SerpApi failed for concern: {$concern}", ['error' => $e->getMessage()]);
+                Log::warning("SerpApi failed for {$concern}", ['error' => $e->getMessage()]);
             }
         }
 
-        // Limit total products (avoid UI overload)
         return array_slice($products, 0, 12);
     }
 }
