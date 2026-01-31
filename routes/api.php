@@ -37,6 +37,8 @@ Route::get('brand/list', [HomeController::class, 'brand_list']);
 Route::get('brand/list', [HomeController::class, 'brand_list']);
 Route::get('preference/list', [HomeController::class, 'preference_list']);
 
+Route::get('redeem/list', [HomeController::class, 'redeem_list']);
+
 Route::get('privacy-policy', [DynamicPageController::class, 'privacyPolicy']);
 Route::get('term-conditions', [DynamicPageController::class, 'agreement']);
 

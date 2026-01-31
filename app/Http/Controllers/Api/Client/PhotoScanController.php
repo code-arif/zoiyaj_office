@@ -194,7 +194,7 @@ class PhotoScanController extends Controller
                             'title'     => $item['title'] ?? 'N/A',
                             'price'     => $item['price'] ?? $item['extracted_price'] ?? 'N/A',
                             'store'     => $item['source'] ?? 'Unknown Store',
-                            'link'      => $directLink, // এখানে full link আসবে
+                            'link'      => $directLink,
                             'thumbnail' => $item['thumbnail'] ?? null,
                             'concern'   => $concern,
                         ];
