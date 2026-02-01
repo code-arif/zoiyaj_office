@@ -243,6 +243,9 @@ Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(func
     Route::post('/cancel/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'cancelBooking']);
     Route::post('/complete/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'completeBooking']);
 
+
+    Route::post('/check-in/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'checkinBooking']);
+
     Route::get('/client/reviews', [\App\Http\Controllers\Api\BookingController::class, 'getClientReviewBookings']);
     Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
 });

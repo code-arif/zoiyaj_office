@@ -13,6 +13,7 @@ class Booking extends Model
         'status',
         'points',
         'notes',
+        'booking_number'
     ];
 
     public function serviceBookings()

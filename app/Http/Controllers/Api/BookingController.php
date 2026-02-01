@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Models\Booking;
 use Nette\Utils\Random;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ServiceReview;
 use App\Models\ServiceBooking;
@@ -65,12 +66,14 @@ class BookingController extends Controller
             }
 
             $booking = Booking::create([
-                'owner_id' => $owner->id,
-                'user_id'  => $user->id,
-                'date'     => date('Y-m-d'),
-                'status'   => 'pending',
-                'points'   => 5,
-                'notes'    => $request->notes ?? '',
+                'owner_id'       => $owner->id,
+                'booking_number' => rand(10000000, 9999999999),
+
+                'user_id'        => $user->id,
+                'date'           => date('Y-m-d'),
+                'status'         => 'pending',
+                'points'         => 5,
+                'notes'          => $request->notes ?? '',
             ]);
 
             // if(count($request->service_ids) != count($request->scheduled_times)){
@@ -78,7 +81,6 @@ class BookingController extends Controller
             // }
 
             $bookingCollection = collect($request->service_ids)->map(function ($serviceId) use ($request, $booking) {
-
 
                 $service = ProfessinalService::find($serviceId);
 
@@ -107,6 +109,7 @@ class BookingController extends Controller
             $data =
                 [
                 'id'         => $booking->id,
+                'booking_number' => $booking->booking_number,
                 'owner_id'   => $booking->owner_id,
                 'user_id'    => $booking->user_id,
                 'date'       => $booking->date,
@@ -159,29 +162,28 @@ class BookingController extends Controller
                     ->whereHas('serviceBookings', function ($query) use ($today) {
                         $query->where('scheduled_date', '>=', $today);
                     })
-                    // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
                     ->get();
             } elseif ($type == 'completed') {
                 $bookings = Booking::where('user_id', $user->id)
                     ->where('status', 'completed')
-                    // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
                     ->get();
             } elseif ($type == 'cancelled') {
                 $bookings = Booking::where('user_id', $user->id)
                     ->where('status', 'cancelled')
-                    // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
                     ->get();
             } else {
                 $bookings = Booking::where('user_id', $user->id)
-                    // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
+                // ->with(['serviceBookings.service:id,name', 'owner:id,first_name,last_name,avatar'])
                     ->get();
             }
-
 
             $bookings = $bookings->map(function ($booking) {
                 return [
                     'id'         => $booking->id,
-                    'booking_id' => $booking->id,
+                    'booking_id' => $booking->booking_number,
                     'owner_id'   => $booking->owner_id,
                     'user_id'    => $booking->user_id,
                     'date'       => $booking->date,
@@ -196,19 +198,18 @@ class BookingController extends Controller
                     'times'      => DB::table('service_booking_times')->where('booking_id', $booking->id)->get() ?? null,
 
                     'owner'      => [
-                        'id'         => $booking->owner->id,
-                        'first_name' => $booking->owner->first_name,
-                        'last_name'  => $booking->owner->last_name,
-                        'avatar'     => $booking->owner->avatar,
-                        'thumb'      => $booking->owner->thumb,
-                        'location'   => $booking->owner->address . ', ' . $booking->owner->city . ', ' . $booking->owner->country,
-                        'total_reviews' => Random::generate(1, '0-9'),
+                        'id'             => $booking->owner->id,
+                        'first_name'     => $booking->owner->first_name,
+                        'last_name'      => $booking->owner->last_name,
+                        'avatar'         => $booking->owner->avatar,
+                        'thumb'          => $booking->owner->thumb,
+                        'location'       => $booking->owner->address . ', ' . $booking->owner->city . ', ' . $booking->owner->country,
+                        'total_reviews'  => Random::generate(1, '0-9'),
                         'total_reatings' => Random::generate(1, '0-9'),
                     ],
 
                 ];
             });
-
 
             return $this->success($bookings, 'User bookings retrieved successfully.', 200);
         } catch (\Exception $e) {
@@ -240,26 +241,25 @@ class BookingController extends Controller
                     ->whereHas('serviceBookings', function ($query) use ($today) {
                         $query->where('scheduled_date', '>=', $today);
                     })
-                    // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
                     ->get();
             } elseif ($type === 'completed') {
                 $bookings = Booking::where('owner_id', $professional->id)
                     ->where('status', 'completed')
-                    // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
                     ->get();
             } elseif ($type === 'cancelled') {
                 $bookings = Booking::where('owner_id', $professional->id)
                     ->where('status', 'cancelled')
-                    // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
                     ->get();
             } else {
                 $bookings = Booking::where('owner_id', $professional->id)
-                    // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
+                // ->with(['serviceBookings.service:id,name', 'user:id,first_name,last_name,avatar'])
                     ->get();
             }
 
             $data = $bookings->map(function ($booking) {
-
 
                 return [
                     'id'         => $booking->id,
