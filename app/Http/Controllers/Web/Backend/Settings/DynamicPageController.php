@@ -13,11 +13,12 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\Faq;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 
 class DynamicPageController extends Controller {
-   
+
     use ApiResponse;
 
 
@@ -32,6 +33,26 @@ class DynamicPageController extends Controller {
             }
 
             return $this->success($data, 'Privacy policy data retrieved successfully.', 200);
+        } catch (Exception $e) {
+
+            Log::error($e->getMessage());
+            return $this->error([], $e->getMessage(), 500);
+        }
+
+    }
+
+
+    public function faq()
+    {
+        try {
+
+            $data = Faq::all();
+
+            if (!$data) {
+                return $this->success([], 'Faq data not found.', 200);
+            }
+
+            return $this->success($data, 'Faq data retrieved successfully.', 200);
         } catch (Exception $e) {
 
             Log::error($e->getMessage());
@@ -60,7 +81,7 @@ class DynamicPageController extends Controller {
 
     }
 
-    
+
     public function index(Request $request) {
 
         if ($request->ajax()) {
@@ -76,7 +97,7 @@ class DynamicPageController extends Controller {
                     $short_page_content = strlen($page_content) > 100 ? substr($page_content, 0, 100) . '...' : $page_content;
                     return '<p>' . $short_page_content . '</p>';
                 })
-                
+
                 ->addColumn('status', function ($data) {
                     $backgroundColor = $data->status == "active" ? '#4CAF50' : '#ccc';
                     $sliderTranslateX = $data->status == "active" ? '26px' : '2px';
@@ -101,14 +122,14 @@ class DynamicPageController extends Controller {
                             </div>';
                 })
 
-              
+
                 ->rawColumns(['page_content', 'status', 'action'])
                 ->make();
         }
         return view('backend.layouts.settings.dynamic_page.index');
     }
 
-   
+
     public function edit(int $id) {
         try{
             if (User::find(auth()->user()->id)) {
@@ -119,10 +140,10 @@ class DynamicPageController extends Controller {
         }catch(Exception $e){
             return redirect()->route('admin.dynamic_page.index')->with('t-error', 'Permission Denied');
         }
-        
+
     }
 
-  
+
     public function update(Request $request, int $id) {
         try {
             if (User::find(auth()->user()->id)) {
