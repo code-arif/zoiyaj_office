@@ -246,6 +246,9 @@ Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(func
 
     Route::post('/check-in/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'checkinBooking']);
 
+
+
+
     Route::get('/client/reviews', [\App\Http\Controllers\Api\BookingController::class, 'getClientReviewBookings']);
     Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
 });
@@ -261,6 +264,12 @@ Route::middleware(['auth:professional', 'role:professional'])->prefix('booking')
     Route::post('/approve/booking', [\App\Http\Controllers\Api\BookingController::class, 'approveBooking']);
     Route::post('/cancel/pro/booking', [\App\Http\Controllers\Api\BookingController::class, 'cancelBooking']);
     Route::post('/complete/pro/booking', [\App\Http\Controllers\Api\BookingController::class, 'completeBooking']);
+
+
+    Route::post('/check-in/complete/pro/booking', [\App\Http\Controllers\Api\BookingController::class, 'confirmCheckin']);
+
+
+
     Route::post('/update/status', [\App\Http\Controllers\Api\BookingController::class, 'updateBookingStatus']);
 });
 
