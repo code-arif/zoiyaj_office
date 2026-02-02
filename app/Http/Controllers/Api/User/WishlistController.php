@@ -99,11 +99,13 @@ class WishlistController extends Controller
 
             $booking = Booking::find($transaction->booking_id);
 
+            $description =  $this->getDefaultDescription($transaction->action);
+
             return [
                 'id'             => $transaction->id,
                 'points'         => (int) $transaction->points,
                 'action'         => $transaction->action,
-                // 'description'    => $description,
+                'description'    => $description,
                 'booking_number' => $booking ? $booking->booking_number : null,
                 'booking_id'     => $booking ? $booking->id : null,
                 'date'           => $transaction->created_at->format('Y-m-d H:i:s'),
@@ -118,5 +120,19 @@ class WishlistController extends Controller
 
             'history' => $formatted,
         ], 'Point history fetched successfully', 200);
+    }
+
+    private function getDefaultDescription(string $action): string
+    {
+        $map = [
+            'checkin_confirm' => 'Earned points for confirming check-in',
+            'booking_confirm' => 'Earned points for appointment confirmation',
+            'redeem'          => 'Redeemed points for service discount',
+            'earn_service'    => 'Earned points from completed service',
+            'referral'        => 'Earned referral bonus points',
+            // আরও action যোগ করতে পারো
+        ];
+
+        return $map[$action] ?? ucfirst(str_replace('_', ' ', $action));
     }
 }
