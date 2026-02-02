@@ -257,6 +257,10 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 
     Route::get('/bookmark/list', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/bookmark/store', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+
+
+    Route::get('/point/history', [WishlistController::class, 'getPointHistory'])->name('point.history');
 });
 
 Route::middleware(['auth:professional', 'role:professional'])->prefix('booking')->group(function () {

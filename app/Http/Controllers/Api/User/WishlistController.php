@@ -1,11 +1,12 @@
 <?php
 namespace App\Http\Controllers\Api\User;
 
-use App\Models\Wishlist;
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\Bookmark;
+use App\Models\PointTransaction;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Bookmark;
 use Illuminate\Support\Facades\Validator;
 
 class WishlistController extends Controller
@@ -21,19 +22,18 @@ class WishlistController extends Controller
             ->where('client_id', $user->id)
             ->get();
 
-
         $data = $bookmarks->map(function ($bookmark) {
             $professional = $bookmark->professional;
             return [
-                'id'            => $professional->id,
+                'id'                => $professional->id,
                 'professional_name' => $professional->professional_name,
-                'thumb'         => $professional->thumb,
-                'location'      => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
-                'added_at'      => $bookmark->added_at,
-                'total_rating'        => $professional->professionalReviews->avg('rating') ?? 0,
-                'no_of_reviews' => $professional->professionalReviews->count() ?? 0,
-                'services'      => $professional->services()->first(),
-                'working_hours' => $professional->working_hours()->first(),
+                'thumb'             => $professional->thumb,
+                'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
+                'added_at'          => $bookmark->added_at,
+                'total_rating'      => $professional->professionalReviews->avg('rating') ?? 0,
+                'no_of_reviews'     => $professional->professionalReviews->count() ?? 0,
+                'services'          => $professional->services()->first(),
+                'working_hours'     => $professional->working_hours()->first(),
             ];
         });
 
@@ -51,8 +51,7 @@ class WishlistController extends Controller
             return $this->error([], $validator->errors()->first(), 422);
         }
 
-        $user    = auth('api')->user();
-
+        $user = auth('api')->user();
 
         $professional_id = $request->professional_id;
 
@@ -68,7 +67,7 @@ class WishlistController extends Controller
             $inWishlist = false;
         } else {
             Bookmark::create([
-                'client_id' => $user->id,
+                'client_id'       => $user->id,
                 'professional_id' => $professional_id,
             ]);
             $message    = 'Added to bookmark';
@@ -83,5 +82,41 @@ class WishlistController extends Controller
         ];
 
         return $this->success($data, $message);
+    }
+
+    public function getPointHistory(Request $request)
+    {
+        $user = auth('api')->user();
+
+        $history = PointTransaction::where('user_id', $user->id)
+            ->where('user_type', $user->is_professional ? 'professional' : 'client')
+            ->orderBy('created_at', 'desc')
+        // ->with(['booking.serviceBookings.service'])
+            ->get();
+
+        // Format response nicely
+        $formatted = $history->map(function ($transaction) {
+
+            $booking = Booking::find($transaction->booking_id);
+
+            return [
+                'id'             => $transaction->id,
+                'points'         => (int) $transaction->points,
+                'action'         => $transaction->action,
+                // 'description'    => $description,
+                'booking_number' => $booking ? $booking->booking_number : null,
+                'booking_id'     => $booking ? $booking->id : null,
+                'date'           => $transaction->created_at->format('Y-m-d H:i:s'),
+                'human_date'     => $transaction->created_at->diffForHumans(), // e.g., "2 hours ago"
+                'type'           => $transaction->points > 0 ? 'Earned' : 'Redeemed',
+                'sign'           => $transaction->points > 0 ? '+' : '-',
+                'amount'         => abs($transaction->points), // positive number for display
+            ];
+        });
+
+        return $this->success([
+
+            'history' => $formatted,
+        ], 'Point history fetched successfully', 200);
     }
 }
