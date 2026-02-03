@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BarcodeController;
 use App\Http\Controllers\Api\Client\HomeController as ClientHomeController;
 use App\Http\Controllers\Api\Client\PhotoScanController;
 use App\Http\Controllers\Api\Client\ProfileSetupController;
+use App\Http\Controllers\Api\FollowerController;
 use App\Http\Controllers\Api\Professional\PortfolioController;
 use App\Http\Controllers\Api\Professional\ProfessionalProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
@@ -160,13 +161,6 @@ Route::get('/salon/detail/{professional_id}', [ClientHomeController::class, 'sal
 //     Route::get('/subscription/status', [SubscriptionController::class, 'subscriptionStatus']);
 // });
 
-
-
-
-
-
-
-
 /*
 |-------------------------------
 | Chatting route
@@ -194,11 +188,7 @@ Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(func
     Route::post('/cancel/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'cancelBooking']);
     Route::post('/complete/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'completeBooking']);
 
-
     Route::post('/check-in/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'checkinBooking']);
-
-
-
 
     Route::get('/client/reviews', [\App\Http\Controllers\Api\BookingController::class, 'getClientReviewBookings']);
     Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
@@ -209,8 +199,6 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
     Route::get('/bookmark/list', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/bookmark/store', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 
-
-
     Route::get('/point/history', [WishlistController::class, 'getPointHistory'])->name('point.history');
 });
 
@@ -220,10 +208,7 @@ Route::middleware(['auth:professional', 'role:professional'])->prefix('booking')
     Route::post('/cancel/pro/booking', [\App\Http\Controllers\Api\BookingController::class, 'cancelBooking']);
     Route::post('/complete/pro/booking', [\App\Http\Controllers\Api\BookingController::class, 'completeBooking']);
 
-
     Route::post('/check-in/complete/pro/booking', [\App\Http\Controllers\Api\BookingController::class, 'confirmCheckin']);
-
-
 
     Route::post('/update/status', [\App\Http\Controllers\Api\BookingController::class, 'updateBookingStatus']);
 });
@@ -241,3 +226,15 @@ Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(
 // photo scanner api
 
 Route::post('/photo/scan', [PhotoScanController::class, 'analyze']);
+
+// manage followers
+
+Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(function () {
+
+    Route::post('/professionals/{professionalId}/follow', [FollowerController::class, 'follow']);
+    Route::delete('/professionals/{professionalId}/follow', [FollowerController::class, 'unfollow']);
+    Route::get('/professionals/{professionalId}/followers', [FollowerController::class, 'getFollowers']);
+    Route::get('/professionals/{professionalId}/follow-status', [FollowerController::class, 'checkFollowingStatus']);
+
+
+});

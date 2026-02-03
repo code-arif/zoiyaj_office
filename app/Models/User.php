@@ -304,6 +304,47 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Booking::class, 'user_id', 'id');
     }
 
+    /* manage follower system */
 
+    /**
+     * Users who follow this user (only professionals should have followers)
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Users this user is following
+     */
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if authenticated user follows this professional
+     */
+    public function isFollowedBy(User $user): bool
+    {
+        return $this->followers()->where('follower_id', $user->id)->exists();
+    }
+
+    /**
+     * Increment/decrement followers_count safely
+     */
+    public function incrementFollowersCount()
+    {
+        $this->increment('followers_count');
+    }
+
+    public function decrementFollowersCount()
+    {
+        $this->decrement('followers_count');
+    }
+
+    /* manage follower system */
 
 }
