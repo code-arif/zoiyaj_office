@@ -160,61 +160,12 @@ Route::get('/salon/detail/{professional_id}', [ClientHomeController::class, 'sal
 //     Route::get('/subscription/status', [SubscriptionController::class, 'subscriptionStatus']);
 // });
 
-// Route::middleware('auth:api')->prefix('auth')->group(function () {
 
-//     Route::get('/book/completion/list', [BookCompletionController::class, 'index'])->name('book.completion.index');
-//     Route::post('/book/completion/store', [BookCompletionController::class, 'toggle'])->name('book.completion.toggle');
-// });
 
-// book review routes
-// Route::middleware('auth:api')->prefix('auth')->group(function () {
 
-//     Route::post('/book/review/store', [BookReviewController::class, 'store'])->name('book.review.store');
 
-//     // stripe onboarding
-//     Route::post('account/user/onboarding', [StripeOnboardingController::class, 'onboard']);
-//     Route::get('account/connect/check', [StripeOnboardingController::class, 'connect_check']);
 
-//     // stripe payout
-//     Route::get('account/balance', [BusinessPayoutController::class, 'getBalance']);
-//     Route::post('account/payout/withdraw', [BusinessPayoutController::class, 'withdraw']);
-//     Route::get('account/transactions', [BusinessPayoutController::class, 'getAllTransactionHistory']);
-// });
 
-// Route::middleware('auth:api')->prefix('auth/seller')->group(function () {
-
-//     Route::get('/book/list', [PhysicalBookController::class, 'index'])->name('seller.book.index');
-//     Route::post('/book/store', [PhysicalBookController::class, 'store'])->name('seller.book.store');
-
-//     // single book image delete
-//     Route::delete('/book/image/delete/{id}', [PhysicalBookController::class, 'deleteImage'])->name('seller.book.image.delete');
-
-//     // book edit
-//     Route::get('/book/edit/{id}', [PhysicalBookController::class, 'edit'])->name('seller.book.edit');
-//     Route::post('/book/update', [PhysicalBookController::class, 'update'])->name('seller.book.update');
-//     Route::delete('/book/delete/{id}', [PhysicalBookController::class, 'destroy'])->name('seller.book.delete');
-
-//     Route::get('/review/list', [DashboardController::class, 'review_list'])->name('seller.review.list');
-// });
-
-// // as a seller order manage
-// Route::middleware('auth:api')->prefix('auth/seller')->group(function () {
-
-//     Route::get('/order/list', [OrderController::class, 'order_list'])->name('seller.order.list');
-//     Route::get('/order/details/{id}', [OrderController::class, 'order_details'])->name('seller.order.details');
-
-//     // shipping info update
-//     Route::post('/order/shipping/update', [OrderController::class, 'update_shipping_info'])->name('seller.order.shipping.update');
-// });
-
-// Route::middleware('auth:api')->prefix('auth/buyer')->group(function () {
-
-//     Route::get('/order/list', [PhysicalOrderController::class, 'buyer_order_list'])->name('buyer.order.list');
-//     Route::get('/order/details/{id}', [PhysicalOrderController::class, 'buyer_order_details'])->name('buyer.order.details');
-
-//     // confirm delivery
-//     Route::post('/order/delivery/confirm', [PhysicalOrderController::class, 'confirm_delivery'])->name('buyer.order.confirm.delivery');
-// });
 
 /*
 |-------------------------------
