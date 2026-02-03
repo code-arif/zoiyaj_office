@@ -10,7 +10,7 @@ class PhotoScanController extends Controller
 {
     public function analyze(Request $request)
     {
-        $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg|max:10240']);
+        $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg']);
 
         $imageFile = $request->file('image');
         $apiKey    = env('SKIN_API_KEY');
