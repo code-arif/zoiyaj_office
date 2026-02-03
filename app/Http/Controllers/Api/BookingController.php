@@ -13,12 +13,11 @@ use App\Models\ServiceReview;
 use App\Models\User;
 use App\Services\CoinService;
 use App\Traits\ApiResponse;
+use function Symfony\Component\Clock\now;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Nette\Utils\Random;
-
-use function Symfony\Component\Clock\now;
 
 class BookingController extends Controller
 {
@@ -187,22 +186,24 @@ class BookingController extends Controller
 
             $bookings = $bookings->map(function ($booking) {
                 return [
-                    'id'         => $booking->id,
-                    'booking_id' => $booking->booking_number,
-                    'owner_id'   => $booking->owner_id,
-                    'user_id'    => $booking->user_id,
-                    'date'       => $booking->date,
-                    'status'     => $booking->status,
-                    'points'     => $booking->points,
-                    'notes'      => $booking->notes,
-                    'created_at' => $booking->created_at,
-                    'updated_at' => $booking->updated_at,
+                    'id'                 => $booking->id,
+                    'booking_id'         => $booking->booking_number,
+                    'owner_id'           => $booking->owner_id,
+                    'user_id'            => $booking->user_id,
+                    'date'               => $booking->date,
+                    'status'             => $booking->status,
+                    'points'             => $booking->points,
+                    'notes'              => $booking->notes,
+                    'created_at'         => $booking->created_at,
+                    'updated_at'         => $booking->updated_at,
 
-                    'services'   => $booking->serviceBookings()->with('service')->get(),
+                    'is_already_checked' => CheckInBooking::where('booking_id', $booking->id)->exists(),
 
-                    'times'      => DB::table('service_booking_times')->where('booking_id', $booking->id)->get() ?? null,
+                    'services'           => $booking->serviceBookings()->with('service')->get(),
 
-                    'owner'      => [
+                    'times'              => DB::table('service_booking_times')->where('booking_id', $booking->id)->get() ?? null,
+
+                    'owner'              => [
                         'id'             => $booking->owner->id,
                         'first_name'     => $booking->owner->first_name,
                         'last_name'      => $booking->owner->last_name,
@@ -267,21 +268,22 @@ class BookingController extends Controller
             $data = $bookings->map(function ($booking) {
 
                 return [
-                    'id'         => $booking->id,
-                    'owner_id'   => $booking->owner_id,
-                    'user_id'    => $booking->user_id,
-                    'date'       => $booking->date,
-                    'status'     => $booking->status,
-                    'points'     => $booking->points,
-                    'notes'      => $booking->notes,
-                    'created_at' => $booking->created_at,
-                    'updated_at' => $booking->updated_at,
+                    'id'                 => $booking->id,
+                    'owner_id'           => $booking->owner_id,
+                    'user_id'            => $booking->user_id,
+                    'date'               => $booking->date,
+                    'status'             => $booking->status,
+                    'points'             => $booking->points,
+                    'notes'              => $booking->notes,
+                    'created_at'         => $booking->created_at,
+                    'updated_at'         => $booking->updated_at,
+                    'is_already_checked' => CheckInBooking::where('booking_id', $booking->id)->first(),
 
-                    'services'   => $booking->serviceBookings()->with('service')->get(),
+                    'services'           => $booking->serviceBookings()->with('service')->get(),
 
-                    'times'      => DB::table('service_booking_times')->where('booking_id', $booking->id)->get() ?? null,
+                    'times'              => DB::table('service_booking_times')->where('booking_id', $booking->id)->get() ?? null,
 
-                    'user'       => [
+                    'user'               => [
                         'id'         => $booking->user->id,
                         'first_name' => $booking->user->first_name,
                         'last_name'  => $booking->user->last_name,
@@ -523,7 +525,6 @@ class BookingController extends Controller
                 $checkin->save();
             }
 
-
             if ($checkin->redeem_tier_id) {
                 $redeem = RedeemTier::find($checkin->redeem_tier_id);
                 if ($redeem) {
@@ -535,19 +536,17 @@ class BookingController extends Controller
                         throw new \Exception("Client does not have enough points for this redeem");
                     }
 
-
                     $client->total_redeem_points = $client->total_redeem_points - $redeem->points_required;
                     $client->save();
 
                     PointTransaction::create([
-                        'user_id'    => $booking->user_id,
-                        'user_type'  => 'client',
-                        'booking_id' => $booking->id,
-                        'points'     => -$redeem->points_required,
-                        'action'     => 'redeem',
-                        'confirm_date' => now()
+                        'user_id'      => $booking->user_id,
+                        'user_type'    => 'client',
+                        'booking_id'   => $booking->id,
+                        'points'       => -$redeem->points_required,
+                        'action'       => 'redeem',
+                        'confirm_date' => now(),
                     ]);
-
 
                 }
             }
