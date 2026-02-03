@@ -43,7 +43,7 @@ class ProfileSetupController extends Controller
             }
 
             // Update other fields
-            $user->age                         = $request->age ?? $user->age;
+            $user->age = $request->age ?? $user->age;
             $user->save();
 
             // Delete old preferences
@@ -139,35 +139,32 @@ class ProfileSetupController extends Controller
         }
     }
 
-
-
     public function others_info(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'is_hijab_friendly'           => 'nullable|boolean',
-                'is_prone'                    => 'nullable|boolean',
+                'is_hijab_friendly' => 'nullable|boolean',
+                'is_prone'          => 'nullable|boolean',
             ]);
 
             if ($validator->fails()) {
                 return $this->error($validator->errors(), 'Validation failed', 422);
             }
 
-            $user                              = auth('api')->user();
-            $user->is_hijab_friendly           = $request->is_hijab_friendly ?? $user->is_hijab_friendly;
-            $user->is_prone                    = $request->is_prone ?? $user->
-            $user->save();
+            $user                    = auth('api')->user();
+            $user->is_hijab_friendly = $request->is_hijab_friendly ?? $user->is_hijab_friendly;
+            $user->is_prone          = $request->is_prone ?? $user->
+                $user->save();
 
             DB::beginTransaction();
-
 
             DB::commit();
 
             $data = [
-                'id'                          => $user->id,
-                'role'                        => $user->role,
-                'is_hijab_friendly'           => $user->is_hijab_friendly,
-                'is_prone'                    => $user->is_prone,
+                'id'                => $user->id,
+                'role'              => $user->role,
+                'is_hijab_friendly' => $user->is_hijab_friendly,
+                'is_prone'          => $user->is_prone,
             ];
 
             return $this->success($data, 'Preferences others information saved successfully', 200);
@@ -200,6 +197,10 @@ class ProfileSetupController extends Controller
             'age'                         => $user->age,
             'is_wheelchair_accessibility' => $user->is_wheelchair_accessibility,
             'is_hijab_friendly'           => $user->is_hijab_friendly,
+            'total_points'                => $user->total_redeem_points,
+            'total_booking'               => $user->bookings()->count() ?? 0,
+            'total_reviews'               => "0.00",
+            'daily_login' => "0",
             'is_prone'                    => $user->is_prone,
             'preferences'                 => $user->preferences->load('preference'),
         ];
