@@ -130,7 +130,7 @@ class WishlistController extends Controller
             'redeem'          => 'Redeemed points for service discount',
             'earn_service'    => 'Earned points from completed service',
             'referral'        => 'Earned referral bonus points',
-            // আরও action যোগ করতে পারো
+
         ];
 
         return $map[$action] ?? ucfirst(str_replace('_', ' ', $action));
