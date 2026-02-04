@@ -197,7 +197,7 @@ class ProfileSetupController extends Controller
             'age'                         => $user->age,
             'is_wheelchair_accessibility' => $user->is_wheelchair_accessibility,
             'is_hijab_friendly'           => $user->is_hijab_friendly,
-            'total_points'                => $user->total_redeem_points,
+            'total_points'                => $user->total_redeem_points ?? 0,
             'total_booking'               => $user->bookings()->count() ?? 0,
             'total_reviews'               => "0.00",
             'daily_login' => "0",
