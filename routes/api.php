@@ -183,6 +183,7 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 });
 
 Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(function () {
+
     Route::post('/service', [\App\Http\Controllers\Api\BookingController::class, 'bookService']);
     Route::get('/client/bookings', [\App\Http\Controllers\Api\BookingController::class, 'getClientBookings']);
     Route::post('/cancel/client/booking', [\App\Http\Controllers\Api\BookingController::class, 'cancelBooking']);
@@ -192,6 +193,8 @@ Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(func
 
     Route::get('/client/reviews', [\App\Http\Controllers\Api\BookingController::class, 'getClientReviewBookings']);
     Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
+
+
 });
 
 Route::middleware('auth:api')->prefix('auth')->group(function () {

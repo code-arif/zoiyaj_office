@@ -197,7 +197,7 @@ class BookingController extends Controller
                     'created_at'         => $booking->created_at,
                     'updated_at'         => $booking->updated_at,
 
-                    'is_already_checked' => CheckInBooking::where('booking_id', $booking->id)->exists(),
+                    'is_already_checked' => CheckInBooking::where('booking_id', $booking->id)->exists() ? true : false,
 
                     'services'           => $booking->serviceBookings()->with('service')->get(),
 
@@ -277,7 +277,7 @@ class BookingController extends Controller
                     'notes'              => $booking->notes,
                     'created_at'         => $booking->created_at,
                     'updated_at'         => $booking->updated_at,
-                    'is_already_checked' => CheckInBooking::where('booking_id', $booking->id)->first(),
+                    'is_already_checked' => CheckInBooking::where('booking_id', $booking->id)->exists(),
 
                     'services'           => $booking->serviceBookings()->with('service')->get(),
 
