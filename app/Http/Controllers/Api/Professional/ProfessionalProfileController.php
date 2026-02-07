@@ -2,13 +2,14 @@
 namespace App\Http\Controllers\Api\Professional;
 
 use App\Helpers\Helper;
-use App\Http\Controllers\Controller;
+use App\Models\Booking;
 use App\Models\Category;
-use App\Models\ProfessionalBrand;
-use App\Models\ProfessionalCategory;
-use App\Models\ProfessionalSpecialty;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\ProfessionalBrand;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\ProfessionalSpecialty;
 use Illuminate\Support\Facades\Validator;
 
 class ProfessionalProfileController extends Controller
@@ -329,7 +330,7 @@ class ProfessionalProfileController extends Controller
 
             $user->services()->create([
                 'name'           => $category ? $category->title : 'Service',
-                'category_id'  => $category ? $category->id : null,
+                'category_id'    => $category ? $category->id : null,
                 'starting_price' => $serviceData['starting_price'],
                 'duration'       => $serviceData['duration'] ?? null,
                 'image'          => $category && $category->image ? $category->image : null,
@@ -385,6 +386,51 @@ class ProfessionalProfileController extends Controller
         ];
 
         return $this->success($data, 'Professional profile information retrive  successfully', 200);
+    }
+
+
+    public function analytics(Request $request)
+    {
+        $user = auth('api')->user();
+
+        if (! $user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+        $topServices = DB::table('service_bookings')
+            ->join('professinal_services', 'service_bookings.service_id', '=', 'professinal_services.id')
+            ->where('professinal_services.user_id', $user->id)
+            ->select(
+                'professinal_services.id',
+                'professinal_services.name',
+                'professinal_services.starting_price',
+                DB::raw('COUNT(service_bookings.id) as total_bookings')
+            )
+            ->groupBy(
+                'professinal_services.id',
+                'professinal_services.name',
+                'professinal_services.starting_price'
+            )
+            ->orderByDesc('total_bookings')
+            ->limit(5)
+            ->get();
+
+        $data = [
+            'id'                    => $user->id,
+            'profile_completion'    => "20%",
+            'total_points'          => $user->total_redeem_points ?? 0,
+            'total_bookings'        => Booking::where('owner_id', $user->id)->count(),
+            'total_followers'       => $user->followers->count(),
+            'total_portfolio_views' => 0,
+
+            'top_services'          => $topServices,
+        ];
+
+        return $this->success(
+            $data,
+            'Professional profile information retrieved successfully',
+            200
+        );
     }
 
 }

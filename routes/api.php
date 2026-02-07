@@ -128,6 +128,7 @@ Route::middleware(['auth:professional', 'role:professional'])->prefix('auth-prof
 
     // information
     Route::get('about/me', [ProfessionalProfileController::class, 'about_me']);
+    Route::get('analytics', [ProfessionalProfileController::class, 'analytics']);
 
     // portfolio
     Route::get('/portfolio/list', [PortfolioController::class, 'list']);
@@ -224,6 +225,7 @@ Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(
 
     // information
     Route::get('about/me', [ProfileSetupController::class, 'about_me']);
+
 });
 
 // photo scanner api
@@ -235,7 +237,7 @@ Route::post('/photo/scan', [PhotoScanController::class, 'analyze']);
 Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(function () {
 
     Route::post('/professionals/{professionalId}/follow', [FollowerController::class, 'follow']);
-    Route::delete('/professionals/{professionalId}/follow', [FollowerController::class, 'unfollow']);
+    Route::post('/professionals/{professionalId}/unfollow', [FollowerController::class, 'unfollow']);
     Route::get('/professionals/{professionalId}/followers', [FollowerController::class, 'getFollowers']);
     Route::get('/professionals/{professionalId}/follow-status', [FollowerController::class, 'checkFollowingStatus']);
 
