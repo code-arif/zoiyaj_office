@@ -19,6 +19,7 @@ class ChatListResource extends JsonResource
                 return [
                     'id' => $this->last_chat->id,
                     'text' => $this->last_chat->short_text,
+                    'room_id' => $this->last_chat->room_id,
                     'file' => $this->last_chat->file,
                     'status' => $this->last_chat->status,
                     'created_at' => $this->last_chat->created_at,
