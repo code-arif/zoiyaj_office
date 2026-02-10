@@ -129,6 +129,7 @@ Route::middleware(['auth:professional', 'role:professional'])->prefix('auth-prof
     // information
     Route::get('about/me', [ProfessionalProfileController::class, 'about_me']);
     Route::get('analytics', [ProfessionalProfileController::class, 'analytics']);
+    Route::get('earning/analytics', [ProfessionalProfileController::class, 'earning_analytics']);
 
     // portfolio
     Route::get('/portfolio/list', [PortfolioController::class, 'list']);

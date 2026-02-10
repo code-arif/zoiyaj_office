@@ -2,14 +2,14 @@
 namespace App\Http\Controllers\Api\Professional;
 
 use App\Helpers\Helper;
+use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Category;
+use App\Models\ProfessionalBrand;
+use App\Models\ProfessionalSpecialty;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use App\Models\ProfessionalBrand;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use App\Models\ProfessionalSpecialty;
 use Illuminate\Support\Facades\Validator;
 
 class ProfessionalProfileController extends Controller
@@ -388,7 +388,6 @@ class ProfessionalProfileController extends Controller
         return $this->success($data, 'Professional profile information retrive  successfully', 200);
     }
 
-
     public function analytics(Request $request)
     {
         $user = auth('api')->user();
@@ -429,6 +428,64 @@ class ProfessionalProfileController extends Controller
         return $this->success(
             $data,
             'Professional profile information retrieved successfully',
+            200
+        );
+    }
+
+    public function earning_analytics(Request $request)
+    {
+        $user = auth('api')->user();
+
+        if (! $user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+        $months = (int) $request->get('months', 6);
+        $months = max(1, min($months, 24));
+
+        $startDate = now()->subMonths($months - 1)->startOfMonth();
+        $endDate   = now()->endOfMonth();
+
+        $earnings = DB::table('service_bookings')
+            ->join('bookings', 'service_bookings.booking_id', '=', 'bookings.id')
+            ->join('professinal_services', 'service_bookings.service_id', '=', 'professinal_services.id')
+            ->where('bookings.owner_id', $user->id)
+            ->where('bookings.status', 'completed')
+            ->whereBetween('service_bookings.created_at', [$startDate, $endDate])
+            ->select(
+                DB::raw('YEAR(service_bookings.created_at) as year'),
+                DB::raw('MONTH(service_bookings.created_at) as month'),
+                DB::raw('SUM(professinal_services.starting_price) as total')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [
+                    $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT) => $item->total,
+                ];
+            });
+
+        $data = [];
+
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $key  = $date->format('Y-m');
+
+            $data[] = [
+                'month'  => $date->format('M'),
+                'year'   => $date->format('Y'),
+                'amount' => (float) ($earnings[$key] ?? 0),
+            ];
+        }
+
+        return $this->success(
+            [
+                'range' => "Last {$months} months",
+                'data' => $data,
+            ],
+            'Earning analytics retrieved successfully',
             200
         );
     }
