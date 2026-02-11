@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bookmark;
 use App\Models\Category;
 use App\Models\User;
 use App\Traits\ApiResponse;
@@ -167,6 +168,8 @@ class HomeController extends Controller
             ->with(['user_categories.category'])
             ->first();
 
+        $user = auth('api')->user();
+
         if (! $professional) {
             return $this->error(null, 'Professional not found.', 404);
         }
@@ -185,6 +188,7 @@ class HomeController extends Controller
             'total_reviews'     => Random::generate(2, '0-9'),
             'total_followers'   => Random::generate(3, '0-9'),
             'portfolio'         => $professional->portfolios,
+            'is_bookmark' => Bookmark::where('client_id', $user->id)->first() ? true : false,
 
             'categories'        => $professional->user_categories->map(function ($user_category) {
                 return [
