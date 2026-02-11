@@ -10,6 +10,18 @@ use Illuminate\Support\Facades\DB;
 class FollowerController extends Controller
 {
     use ApiResponse;
+
+    public function followingList($professionalId)
+    {
+        $professional = User::where('id', $professionalId)
+            ->where('role', 'professional')
+            ->firstOrFail();
+
+        $followers = $professional->followers()->get();
+
+        return $this->success($followers, 'Followers retrieved successfully');
+    }
+
     /**
      * Follow a professional
      */

@@ -194,8 +194,6 @@ Route::middleware(['auth:client', 'role:client'])->prefix('booking')->group(func
 
     Route::get('/client/reviews', [\App\Http\Controllers\Api\BookingController::class, 'getClientReviewBookings']);
     Route::post('/submit/review', [\App\Http\Controllers\Api\BookingController::class, 'submitReview']);
-
-
 });
 
 Route::middleware('auth:api')->prefix('auth')->group(function () {
@@ -225,7 +223,6 @@ Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(
 
     // information
     Route::get('about/me', [ProfileSetupController::class, 'about_me']);
-
 });
 
 // photo scanner api
@@ -233,13 +230,10 @@ Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(
 Route::post('/photo/scan', [PhotoScanController::class, 'analyze']);
 
 // manage followers
-
 Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(function () {
-
+    Route::get('/professionals/following', [FollowerController::class, 'followingList']);
     Route::post('/professionals/{professionalId}/follow', [FollowerController::class, 'follow']);
     Route::post('/professionals/{professionalId}/unfollow', [FollowerController::class, 'unfollow']);
     Route::get('/professionals/{professionalId}/followers', [FollowerController::class, 'getFollowers']);
     Route::get('/professionals/{professionalId}/follow-status', [FollowerController::class, 'checkFollowingStatus']);
-
-
 });
