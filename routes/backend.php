@@ -12,11 +12,11 @@ use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Web\Backend\UserListController;
 use App\Http\Controllers\Web\Backend\DashboardController;
 use App\Http\Controllers\Web\Backend\SpecialtyController;
-use App\Http\Controllers\Web\Backend\PreferenceController;
 use App\Http\Controllers\Web\Backend\ChatManageController;
 use App\Http\Controllers\Web\Backend\CMS\BannerController;
+use App\Http\Controllers\Web\Backend\PreferenceController;
+use App\Http\Controllers\Web\Backend\RedeemTierController;
 use App\Http\Controllers\Web\Backend\CMS\AboutUsController;
-use App\Http\Controllers\Web\Backend\CMS\UserPreferenceController;
 use App\Http\Controllers\Web\backend\PlanfeatureController;
 use App\Http\Controllers\Web\Backend\TestimonialController;
 use App\Http\Controllers\Web\Backend\CMS\AuthPageController;
@@ -27,11 +27,12 @@ use App\Http\Controllers\Web\Backend\Settings\StripeController;
 use App\Http\Controllers\Web\Backend\Settings\ProfileController;
 use App\Http\Controllers\Web\Backend\Settings\SettingController;
 use App\Http\Controllers\Web\Backend\Settings\FirebaseController;
+use App\Http\Controllers\Web\Backend\CMS\UserPreferenceController;
 use App\Http\Controllers\Web\Backend\CMS\OrderAndDeliveryController;
-use App\Http\Controllers\Web\Backend\Professionals\ProfessionalsManageController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
 use App\Http\Controllers\Web\Backend\Settings\MailSettingController;
 use App\Http\Controllers\Web\Backend\Settings\SocialSettingController;
+use App\Http\Controllers\Web\Backend\Professionals\ProfessionalsManageController;
 
 Route::middleware(['auth:web', 'admin'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -49,7 +50,7 @@ Route::middleware(['auth:web'])->group(function () {
     Route::get('category/create', [CategoryController::class, 'create'])->name('admin.category.create');
     Route::post('category/store', [CategoryController::class, 'store'])->name('admin.category.store');
     Route::get('category/edit/{id}', [CategoryController::class, 'edit'])->name('admin.category.edit');
-    Route::put('category/update/{id}', [CategoryController::class, 'update'])->name('admin.category.update');
+    Route::post('category/update/{id}', [CategoryController::class, 'update'])->name('admin.category.update');
     Route::delete('category/delete/{id}', [CategoryController::class, 'destroy'])->name('admin.category.destroy');
     Route::post('/category/status/{id}', [CategoryController::class, 'status'])->name('admin.category.status');
 });
@@ -63,6 +64,25 @@ Route::middleware(['auth:web'])->group(function () {
     Route::delete('specialty/delete/{id}', [SpecialtyController::class, 'destroy'])->name('admin.specialty.destroy');
     Route::post('/specialty/status/{id}', [SpecialtyController::class, 'status'])->name('admin.specialty.status');
 });
+
+
+
+// redeem tier routes
+
+
+Route::middleware(['auth:web'])->group(function () {
+    Route::get('redeem-tiers', [RedeemTierController::class, 'index'])->name('admin.redeem_tiers.index');
+    Route::get('redeem-tiers/create', [RedeemTierController::class, 'create'])->name('admin.redeem_tiers.create');
+    Route::post('redeem-tiers/store', [RedeemTierController::class, 'store'])->name('admin.redeem_tiers.store');
+    Route::get('redeem-tiers/edit/{id}', [RedeemTierController::class, 'edit'])->name('admin.redeem_tiers.edit');
+    Route::post('redeem-tiers/update/{id}', [RedeemTierController::class, 'update'])->name('admin.redeem_tiers.update');
+    Route::delete('redeem-tiers/delete/{id}', [RedeemTierController::class, 'destroy'])->name('admin.redeem_tiers.destroy');
+    Route::post('/redeem-tiers/status/{id}', [RedeemTierController::class, 'status'])->name('admin.redeem_tiers.status');
+});
+
+
+
+
 
 
 

@@ -2,12 +2,14 @@
 namespace App\Http\Controllers\Api\Professional;
 
 use App\Helpers\Helper;
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\Category;
+use App\Models\ProfessionalBrand;
+use App\Models\ProfessionalSpecialty;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use App\Models\ProfessionalBrand;
-use App\Http\Controllers\Controller;
-use App\Models\ProfessionalCategory;
-use App\Models\ProfessionalSpecialty;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ProfessionalProfileController extends Controller
@@ -29,7 +31,7 @@ class ProfessionalProfileController extends Controller
             'postal_code'        => 'required',
             'country'            => 'required',
             'bio'                => 'required',
-            'thumb'              => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'thumb'              => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
         ]);
 
@@ -38,7 +40,6 @@ class ProfessionalProfileController extends Controller
         }
 
         $prof_info = auth('api')->user();
-
 
         if ($request->hasFile('thumb')) {
             if ($prof_info->thumb) {
@@ -69,7 +70,7 @@ class ProfessionalProfileController extends Controller
         $prof_info = [
             'id'                 => $prof_info->id,
             'role'               => $prof_info->role,
-            'professional_name'  => $prof_info->professional_name ,
+            'professional_name'  => $prof_info->professional_name,
             'professional_phone' => $prof_info->professional_phone,
             'professional_email' => $prof_info->professional_email,
             'address'            => $prof_info->address,
@@ -234,69 +235,53 @@ class ProfessionalProfileController extends Controller
         return $this->success($user, 'Professional brands updated successfully', 200);
     }
 
+    // public function setup_category(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'category_id'   => 'required|array',
+    //         'category_id.*' => 'exists:categories,id',
+    //     ]);
 
+    //     if ($validator->fails()) {
+    //         return $this->error($validator->errors(), 'Validation failed', 422);
+    //     }
 
-    public function setup_category(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'category_id'   => 'required|array',
-            'category_id.*' => 'exists:categories,id',
-        ]);
+    //     $user = auth('api')->user();
 
-        if ($validator->fails()) {
-            return $this->error($validator->errors(), 'Validation failed', 422);
-        }
+    //     // Sync categories (delete old and insert new)
+    //     $user->user_categories()->delete();
+    //     if (! empty($request->category_id)) {
+    //         $categories = collect($request->category_id)->map(function ($id) use ($user) {
+    //             return [
+    //                 'user_id'     => $user->id,
+    //                 'category_id' => $id,
+    //                 'created_at'  => now(),
+    //                 'updated_at'  => now(),
+    //             ];
+    //         })->toArray();
 
-        $user = auth('api')->user();
+    //         ProfessionalCategory::insert($categories);
+    //     }
 
-        // Sync categories (delete old and insert new)
-        $user->user_categories()->delete();
-        if (! empty($request->category_id)) {
-            $categories = collect($request->category_id)->map(function ($id) use ($user) {
-                return [
-                    'user_id'    => $user->id,
-                    'category_id'   => $id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            })->toArray();
-
-            ProfessionalCategory::insert($categories);
-        }
-
-        // Load updated categories
-        $user->load('user_categories');
-        return $this->success($user, 'Professional categories updated successfully', 200);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //     // Load updated categories
+    //     $user->load('user_categories');
+    //     return $this->success($user, 'Professional categories updated successfully', 200);
+    // }
 
     public function services(Request $request)
     {
+        // dd($request->all());
 
         $validator = Validator::make($request->all(), [
             'logo'                      => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'certificate'               => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:5120',
 
             'services'                  => 'required|array|min:1',
-            'services.*.name'           => 'required|string|max:100',
+            // 'services.*.name'           => 'required|string|max:100',
             'services.*.starting_price' => 'required|numeric|min:0',
             'services.*.duration'       => 'nullable|string|max:50',
+            'services.*.category_id'    => 'required|integer|exists:categories,id',
+            // 'services.*.image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -332,11 +317,23 @@ class ProfessionalProfileController extends Controller
 
         $user->services()->delete();
 
-        foreach ($request->input('services', []) as $serviceData) {
+        foreach ($request->services as $index => $serviceData) {
+
+            // $image = null;
+
+            // if ($request->hasFile("services.$index.image")) {
+            //     $imageFile = $request->file("services.$index.image");
+            //     $image     = Helper::uploadImage($imageFile, 'services');
+            // }
+
+            $category = Category::find($serviceData['category_id']);
+
             $user->services()->create([
-                'name'           => $serviceData['name'],
+                'name'           => $category ? $category->title : 'Service',
+                'category_id'    => $category ? $category->id : null,
                 'starting_price' => $serviceData['starting_price'],
                 'duration'       => $serviceData['duration'] ?? null,
+                'image'          => $category && $category->image ? $category->image : null,
             ]);
         }
 
@@ -383,13 +380,114 @@ class ProfessionalProfileController extends Controller
             'working_hours'      => $user->working_hours,
             'accessibilties'     => json_decode($user->accessibilties),
             'services'           => $user->services,
-            'brands' => $user->user_brands->load('brand'),
-            'categories' => $user->user_categories->load('category'),
-
+            'brands'             => $user->user_brands->load('brand'),
+            // 'categories'         => $user->user_categories->load('category'),
 
         ];
 
         return $this->success($data, 'Professional profile information retrive  successfully', 200);
+    }
+
+    public function analytics(Request $request)
+    {
+        $user = auth('api')->user();
+
+        if (! $user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+        $topServices = DB::table('service_bookings')
+            ->join('professinal_services', 'service_bookings.service_id', '=', 'professinal_services.id')
+            ->where('professinal_services.user_id', $user->id)
+            ->select(
+                'professinal_services.id',
+                'professinal_services.name',
+                'professinal_services.starting_price',
+                DB::raw('COUNT(service_bookings.id) as total_bookings')
+            )
+            ->groupBy(
+                'professinal_services.id',
+                'professinal_services.name',
+                'professinal_services.starting_price'
+            )
+            ->orderByDesc('total_bookings')
+            ->limit(5)
+            ->get();
+
+        $data = [
+            'id'                    => $user->id,
+            'profile_completion'    => "20%",
+            'total_points'          => $user->total_redeem_points ?? 0,
+            'total_bookings'        => Booking::where('owner_id', $user->id)->count(),
+            'total_followers'       => $user->followers->count(),
+            'total_portfolio_views' => 0,
+
+            'top_services'          => $topServices,
+        ];
+
+        return $this->success(
+            $data,
+            'Professional profile information retrieved successfully',
+            200
+        );
+    }
+
+    public function earning_analytics(Request $request)
+    {
+        $user = auth('api')->user();
+
+        if (! $user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+        $months = (int) $request->get('months', 6);
+        $months = max(1, min($months, 24));
+
+        $startDate = now()->subMonths($months - 1)->startOfMonth();
+        $endDate   = now()->endOfMonth();
+
+        $earnings = DB::table('service_bookings')
+            ->join('bookings', 'service_bookings.booking_id', '=', 'bookings.id')
+            ->join('professinal_services', 'service_bookings.service_id', '=', 'professinal_services.id')
+            ->where('bookings.owner_id', $user->id)
+            ->where('bookings.status', 'completed')
+            ->whereBetween('service_bookings.created_at', [$startDate, $endDate])
+            ->select(
+                DB::raw('YEAR(service_bookings.created_at) as year'),
+                DB::raw('MONTH(service_bookings.created_at) as month'),
+                DB::raw('SUM(professinal_services.starting_price) as total')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [
+                    $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT) => $item->total,
+                ];
+            });
+
+        $data = [];
+
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $key  = $date->format('Y-m');
+
+            $data[] = [
+                'month'  => $date->format('M'),
+                'year'   => $date->format('Y'),
+                'amount' => (float) ($earnings[$key] ?? 0),
+            ];
+        }
+
+        return $this->success(
+            [
+                'range' => "Last {$months} months",
+                'data' => $data,
+            ],
+            'Earning analytics retrieved successfully',
+            200
+        );
     }
 
 }

@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Plan;
+use App\Models\RedeemTier;
 use App\Models\Specialty;
 use App\Models\Wishlist;
 use App\Traits\ApiResponse;
@@ -157,6 +158,31 @@ class HomeController extends Controller
 
         return $this->success($data, 'Category list retrive successfully');
     }
+
+
+    public function redeem_list(Request $request)
+    {
+        $data = RedeemTier::all();
+
+        return $this->success($data, 'RedeemTier list retrive successfully');
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     public function specialty_list(Request $request)

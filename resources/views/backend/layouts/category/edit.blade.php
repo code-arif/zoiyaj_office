@@ -34,9 +34,9 @@
                                         <div class="row mb-4">
 
                                             <div class="form-group">
-                                                <label for="username" class="form-label">Name:</label>
-                                                <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" placeholder="Name" id="" value="{{ $category->name }}">
-                                                @error('name')
+                                                <label for="title" class="form-label">Name:</label>
+                                                <input type="text" class="form-control @error('title') is-invalid @enderror" name="title" placeholder="Name" id="" value="{{ $category->title }}">
+                                                @error('title')
                                                 <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
@@ -70,5 +70,5 @@
 <!-- CONTAINER CLOSED -->
 @endsection
 @push('scripts')
-    
+
 @endpush

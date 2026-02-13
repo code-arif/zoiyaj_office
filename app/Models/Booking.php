@@ -13,6 +13,7 @@ class Booking extends Model
         'status',
         'points',
         'notes',
+        'booking_number'
     ];
 
     public function serviceBookings()
@@ -28,6 +29,12 @@ class Booking extends Model
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id', 'id');
+    }
+
+
+    public function serviceBookingTimes()
+    {
+        return $this->hasMany(ServiceBookingTime::class, 'booking_id');
     }
 
 }

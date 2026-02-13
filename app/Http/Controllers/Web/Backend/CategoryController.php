@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\Backend;
 
 use Exception;
-use App\Helper\Helper;
+use App\Helpers\Helper;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -113,7 +113,7 @@ class CategoryController extends Controller
             ], 404);
         }
 
-        return response()->json($category);
+        return view('backend.layouts.category.edit', compact('category'));
     }
 
 

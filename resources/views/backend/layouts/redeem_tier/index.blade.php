@@ -1,7 +1,7 @@
-@extends('backend.app', ['title' => 'Brand'])
+@extends('backend.app', ['title' => 'Redeem Tier Management'])
 
 
-@section('title', 'Brand')
+@section('title', 'Redeem Tier Management')
 
 
 
@@ -22,11 +22,11 @@
             <!-- PAGE-HEADER -->
             <div class="page-header">
                 <div>
-                    <h1 class="page-title">Brand</h1>
+                    <h1 class="page-title">Redeem Tier Management</h1>
                 </div>
                 <div class="ms-auto pageheader-btn">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="javascript:void(0);">Brand</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:void(0);">Redeem Tier Management</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Index</li>
                     </ol>
                 </div>
@@ -40,7 +40,7 @@
                         <div class="card-header border-bottom">
                             <h3 class="card-title mb-0">List</h3>
                             <div class="card-options ms-auto">
-                                <a href="{{ route('admin.brand.create') }}" class="btn btn-primary btn-sm">Add</a>
+                                <a href="{{ route('admin.redeem_tiers.create') }}" class="btn btn-primary btn-sm">Add</a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -49,11 +49,11 @@
                                     <thead>
                                         <tr>
                                             <th class="bg-transparent border-bottom-0 wp-15">ID</th>
-                                            <th class="bg-transparent border-bottom-0 wp-15">Name</th>
-                                            <th class="bg-transparent border-bottom-0">Image</th>
-                                            <th class="bg-transparent border-bottom-0">Promo Code</th>
-                                            <th class="bg-transparent border-bottom-0">Redirect URL</th>
-                                            {{-- <th class="bg-transparent border-bottom-0">Status</th> --}}
+                                            <th class="bg-transparent border-bottom-0">Tier Name</th>
+                                            <th class="bg-transparent border-bottom-0">Points Required</th>
+                                            <th class="bg-transparent border-bottom-0">Discount Amount</th>
+                                            <th class="bg-transparent border-bottom-0">Description</th>
+                                            <th class="bg-transparent border-bottom-0">Status</th>
                                             <th class="bg-transparent border-bottom-0">Action</th>
                                         </tr>
                                     </thead>
@@ -108,7 +108,7 @@
                 pagingType: "full_numbers",
                 dom: "<'row justify-content-between table-topbar'<'col-md-4 col-sm-3'l><'col-md-5 col-sm-5 px-0'f>>tipr",
                 ajax: {
-                    url: "{{ route('admin.brand.index') }}",
+                    url: "{{ route('admin.redeem_tiers.index') }}",
                     type: "GET",
                 },
 
@@ -119,29 +119,43 @@
                         searchable: false
                     },
                     {
-                        data: 'name',
-                        name: 'name',
+                        data: 'tier_name',
+                        name: 'tier_name',
                         orderable: true,
                         searchable: true
                     },
                     {
-                        data: 'thumb',
-                        name: 'thumb',
+                        data: 'points_required',
+                        name: 'points_required',
+                        orderable: true,
+                        searchable: true,
+
+                        // nned point icon
+                        render: function (data, type, row) {
+                            return data + ' points';
+                        }
+
+                    },
+                    {
+                        data: 'discount_amount',
+                        name: 'discount_amount',
+                        orderable: true,
+                        searchable: true
+
+
+                    },
+                    {
+                        data: 'description',
+                        name: 'description',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'is_active',
+                        name: 'is_active',
                         orderable: false,
                         searchable: false,
                         className: 'dt-center text-center'
-                    },
-                    {
-                        data: 'promo_code',
-                        name: 'promo_code',
-                        orderable: true,
-                        searchable: true
-                    },
-                    {
-                        data: 'redirect_url',
-                        name: 'redirect_url',
-                        orderable: false,
-                        searchable: false
                     },
                     {
                         data: 'action',
@@ -176,7 +190,7 @@
     // Status Change
     function statusChange(id) {
         NProgress.start();
-        let url = "{{ route('admin.brand.status', ':id') }}";
+        let url = "{{ route('admin.redeem_tiers.status', ':id') }}";
         $.ajax({
             type: "GET",
             url: url.replace(':id', id),
@@ -213,7 +227,7 @@
     // Delete Button
     function deleteItem(id) {
         NProgress.start();
-        let url = "{{ route('admin.brand.destroy', ':id') }}";
+        let url = "{{ route('admin.redeem_tiers.destroy', ':id') }}";
         let csrfToken = '{{ csrf_token() }}';
         $.ajax({
             type: "DELETE",
@@ -235,7 +249,7 @@
 
     //edit
     function goToEdit(id) {
-        let url = "{{ route('admin.brand.edit', ':id') }}";
+        let url = "{{ route('admin.redeem_tiers.edit', ':id') }}";
         window.location.href = url.replace(':id', id);
     }
 </script>

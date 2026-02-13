@@ -1,15 +1,14 @@
 <?php
-
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Specialty;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -56,7 +55,7 @@ class User extends Authenticatable implements JWTSubject
         'accessibilties',
         'bio',
         'latitude',
-        'longitude'
+        'longitude',
     ];
 
     protected $hidden = [
@@ -74,9 +73,9 @@ class User extends Authenticatable implements JWTSubject
             'is_otp_verified'                 => 'boolean',
             'reset_password_token_expires_at' => 'datetime',
             'password'                        => 'hashed',
-            'is_wheelchair_accessibility'    => 'boolean',
-            'is_hijab_friendly'              => 'boolean',
-            'is_prone'                       => 'boolean',
+            'is_wheelchair_accessibility'     => 'boolean',
+            'is_hijab_friendly'               => 'boolean',
+            'is_prone'                        => 'boolean',
 
         ];
     }
@@ -93,7 +92,6 @@ class User extends Authenticatable implements JWTSubject
         return $value;
     }
 
-
     public function getThumbAttribute($value): string | null
     {
         if (filter_var($value, FILTER_VALIDATE_URL)) {
@@ -105,15 +103,6 @@ class User extends Authenticatable implements JWTSubject
         }
         return $value;
     }
-
-
-
-
-
-
-
-
-
 
     public function getLogoPathAttribute($value): string | null
     {
@@ -242,7 +231,6 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(ServiceBooking::class, 'user_id', 'id');
     }
 
-
     // user preferences
     public function preferences()
     {
@@ -281,12 +269,82 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Room::class, 'second_user_id');
     }
 
-
     public function user_categories()
     {
         return $this->hasMany(ProfessionalCategory::class, 'user_id', 'id');
     }
 
+    // professional services
+    public function professionalServices()
+    {
+        return $this->hasMany(ProfessinalService::class, 'user_id', 'id');
+    }
 
+    // professional reviews
+    public function professionalReviews()
+    {
+        return $this->hasMany(ServiceReview::class, 'professional_id', 'id');
+    }
+
+    // client reviews
+    public function clientReviews()
+    {
+        return $this->hasMany(ServiceReview::class, 'client_id', 'id');
+
+    }
+
+    // bookmarks
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class, 'client_id', 'id');
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'user_id', 'id');
+    }
+
+    /* manage follower system */
+
+    /**
+     * Users who follow this user (only professionals should have followers)
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Users this user is following
+     */
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if authenticated user follows this professional
+     */
+    public function isFollowedBy(User $user): bool
+    {
+        return $this->followers()->where('follower_id', $user->id)->exists();
+    }
+
+    /**
+     * Increment/decrement followers_count safely
+     */
+    public function incrementFollowersCount()
+    {
+        $this->increment('followers_count');
+    }
+
+    public function decrementFollowersCount()
+    {
+        $this->decrement('followers_count');
+    }
+
+    /* manage follower system */
 
 }

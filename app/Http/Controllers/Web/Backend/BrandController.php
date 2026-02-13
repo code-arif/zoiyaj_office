@@ -1,18 +1,12 @@
 <?php
-
 namespace App\Http\Controllers\Web\Backend;
 
-use Exception;
-use App\Helper\Helper;
-use App\Models\Category;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
-use App\Models\Specialty;
+use Exception;
+use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
-
-
 
 class BrandController extends Controller
 {
@@ -23,6 +17,11 @@ class BrandController extends Controller
             $data = Brand::all();
             return DataTables::of($data)
                 ->addIndexColumn()
+
+                ->addColumn('thumb', function ($data) {
+                    $url = ! empty($data->thumb) ? asset($data->thumb) : asset('uploads/default.png');
+                    return '<img src="' . $url . '" alt="' . $data->name . '" width="50" height="50"/>';
+                })
 
                 ->addColumn('action', function ($data) {
                     return '<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
@@ -36,30 +35,34 @@ class BrandController extends Controller
                                 </a>
                             </div>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['thumb', 'action'])
                 ->make();
         }
         return view("backend.layouts.brand.index");
     }
-
 
     public function create()
     {
         return view('backend.layouts.brand.create');
     }
 
-
     public function store(Request $request)
     {
 
         $validate = $request->validate([
-            'name' => 'required',
+            'name'         => 'required',
+            'thumb'        => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'promo_code'   => 'nullable|string',
+            'redirect_url' => 'required|string',
         ]);
 
         try {
 
-            Brand::create($validate);
+            if ($request->hasFile('thumb')) {
+                $validate['thumb'] = Helper::uploadImage($request->file('thumb'), 'brands');
+            }
 
+            Brand::create($validate);
 
             session()->put('t-success', 'brand created successfully');
 
@@ -70,27 +73,29 @@ class BrandController extends Controller
         return redirect()->route('admin.brand.index')->with('success', 'brand created successfully');
     }
 
-
-
-
     public function edit($id)
     {
         $brand = Brand::findOrFail($id);
         return view('backend.layouts.brand.edit', compact('brand'));
     }
 
-
     public function update(Request $request, $id)
     {
         $validate = $request->validate([
-            'name' => 'required',
+            'name'         => 'required',
+            'thumb'        => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'promo_code'   => 'nullable|string',
+            'redirect_url' => 'required|string',
 
         ]);
 
         try {
+
+            if ($request->hasFile('thumb')) {
+                $validate['thumb'] = Helper::uploadImage($request->file('thumb'), 'brands');
+            }
+
             $Brand = Brand::findOrFail($id);
-
-
 
             $Brand->update($validate);
             session()->put('t-success', 'Brand updated successfully');
@@ -100,7 +105,6 @@ class BrandController extends Controller
 
         return redirect()->route('admin.brand.index');
     }
-
 
     public function destroy(string $id)
     {
@@ -113,15 +117,12 @@ class BrandController extends Controller
             ], 404);
         }
 
-
-
         $data->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Brand deleted successfully!',
-        ],200);
+        ], 200);
     }
-
 
 }

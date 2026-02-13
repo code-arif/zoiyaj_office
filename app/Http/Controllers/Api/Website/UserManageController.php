@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Api\Website;
 
 use App\Models\User;
-use App\Helper\Helper;
+use App\Helpers\Helper;
 use App\Models\Company;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
