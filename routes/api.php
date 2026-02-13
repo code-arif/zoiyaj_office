@@ -1,5 +1,4 @@
 <?php
-//   dd
 
 use App\Http\Controllers\Api\BarcodeController;
 use App\Http\Controllers\Api\Client\HomeController as ClientHomeController;
