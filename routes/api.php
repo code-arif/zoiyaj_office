@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\User\UserPreferenceController;
 use App\Http\Controllers\Api\User\WishlistController;
 use App\Http\Controllers\Api\Website\HomeController;
 use App\Http\Controllers\Api\Website\UserManageController;
+use App\Http\Controllers\Api\Shop\ShopSearchController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
 use App\Http\Controllers\Web\Backend\SplashController;
 use Illuminate\Support\Facades\Broadcast;
@@ -236,4 +237,27 @@ Route::middleware(['auth:client', 'role:client'])->prefix('auth-client')->group(
     Route::post('/professionals/{professionalId}/unfollow', [FollowerController::class, 'unfollow']);
     Route::get('/professionals/{professionalId}/followers', [FollowerController::class, 'getFollowers']);
     Route::get('/professionals/{professionalId}/follow-status', [FollowerController::class, 'checkFollowingStatus']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Shop Search & Filter Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('shop')->group(function () {
+    // Combined search across brands, products, and deals
+    Route::get('/search', [ShopSearchController::class, 'search']);
+
+    // Individual tab searches with filtering & pagination
+    Route::get('/brands', [ShopSearchController::class, 'searchBrands']);
+    Route::get('/products', [ShopSearchController::class, 'searchProducts']);
+    Route::get('/deals', [ShopSearchController::class, 'searchDeals']);
+
+    // Filter options
+    Route::get('/categories', [ShopSearchController::class, 'getCategories']);
+    Route::get('/brand-names', [ShopSearchController::class, 'getBrandNames']);
+
+    // Reviews
+    Route::get('/reviews', [ShopSearchController::class, 'getReviews']);
+    Route::get('/reviews/professional/{professionalId}', [ShopSearchController::class, 'getProfessionalReviews']);
 });
