@@ -248,7 +248,7 @@ Route::prefix('shop')->group(function () {
     // Combined search across brands, products, and deals
     Route::get('/search', [ShopSearchController::class, 'search']);
 
-    // Individual tab searches with filtering & pagination
+    // Individual tab searches with filtering
     Route::get('/brands', [ShopSearchController::class, 'searchBrands']);
     Route::get('/products', [ShopSearchController::class, 'searchProducts']);
     Route::get('/deals', [ShopSearchController::class, 'searchDeals']);
