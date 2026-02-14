@@ -19,6 +19,8 @@ class HomeController extends Controller
 
         $category = Category::find($category_id);
 
+        $user = auth('api')->user();
+
         if (! $category) {
             return $this->error(null, 'Category not found.', 404);
         }
@@ -30,16 +32,30 @@ class HomeController extends Controller
             ->with(['professionalServices.category'])
             ->get();
 
-        $data = $professionals->map(function ($professional) {
+        $data = $professionals->map(function ($professional) use ($user) {
+
+            $isBookmarked = false;
+
+            if ($user) {
+                $isBookmarked = Bookmark::where('client_id', $user->id)
+                    ->where('professional_id', $professional->id)
+                    ->exists();
+            }
+
             return [
                 'id'                => $professional->id,
                 'professional_name' => $professional->professional_name,
-                'location'          => $professional->address . ', ' . $professional->city . ', ' . $professional->state . ', ' . $professional->country,
+                'location'          => trim(
+                    $professional->address . ', ' .
+                    $professional->city . ', ' .
+                    $professional->state . ', ' .
+                    $professional->country
+                ),
                 'thumb'             => $professional->thumb,
+                'is_bookmark'       => $isBookmarked,
                 'total_ratings'     => "5.0",
                 'working_hours'     => $professional->working_hours()->first(),
                 'services'          => $professional->services()->first(),
-
             ];
         });
 
@@ -57,22 +73,20 @@ class HomeController extends Controller
             },
 
         ])
-        ->whereHas('serviceBookings')
+            ->whereHas('serviceBookings')
 
             ->take(10)
             ->get();
 
         $data = $categories->map(function ($category) {
             return [
-                'id'          => $category->id,
-                'title'       => $category->title,
-                'image'       => $category->image,
-                'user_count'  => $category->user_count,
+                'id'             => $category->id,
+                'title'          => $category->title,
+                'image'          => $category->image,
+                'user_count'     => $category->user_count,
                 'total_services' => $category->professionalServices()->count(),
             ];
         });
-
-
 
         return $this->success($data, 'Popular categories fetched successfully.', 200);
     }
@@ -142,9 +156,6 @@ class HomeController extends Controller
             return $this->error(null, 'No top stylists found.', 404);
         }
 
-
-
-
         $data = $professionals->map(function ($professional) {
             return [
                 'id'                => $professional->id,
@@ -174,6 +185,14 @@ class HomeController extends Controller
             return $this->error(null, 'Professional not found.', 404);
         }
 
+        $isBookmarked = false;
+
+        if ($user) {
+            $isBookmarked = Bookmark::where('client_id', $user->id)
+                ->where('professional_id', $professional->id)
+                ->exists();
+        }
+
         $data = [
             'id'                => $professional->id,
             'first_name'        => $professional->first_name,
@@ -188,7 +207,7 @@ class HomeController extends Controller
             'total_reviews'     => Random::generate(2, '0-9'),
             'total_followers'   => Random::generate(3, '0-9'),
             'portfolio'         => $professional->portfolios,
-            'is_bookmark' => Bookmark::where('client_id', $user->id)->first() ? true : false,
+            'is_bookmark'       => $isBookmarked,
 
             'categories'        => $professional->user_categories->map(function ($user_category) {
                 return [
