@@ -105,7 +105,6 @@ Route::delete('/delete-profile', [UserProfileController::class, 'deleteProfile']
 | Authenticated Routes (Prefix: auth)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('auth:api')->prefix('auth')->group(function () {
 
     Route::post('/update/role', [AuthenticationController::class, 'updateRole']);

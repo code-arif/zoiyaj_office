@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api\Website;
 
 use App\Models\User;
@@ -70,7 +71,6 @@ class UserManageController extends Controller
         ];
 
         return $this->success($data, 'User Information retrieved successfully.');
-
     }
 
     public function user_info_update(Request $request)
@@ -100,7 +100,6 @@ class UserManageController extends Controller
         ];
 
         return $this->success($data, 'User Information updated successfully.');
-
     }
 
     public function user_avatar_update(Request $request)
@@ -153,7 +152,6 @@ class UserManageController extends Controller
             ];
 
             return $this->success($userData, 'Profile updated successfully.', 200);
-
         } catch (\Exception $e) {
 
             Log::error('Profile update failed: ' . $e->getMessage(), [
@@ -193,11 +191,4 @@ class UserManageController extends Controller
 
         return $this->success([], 'Password reset successfully.', 200);
     }
-
-
-
-
-
-
-
 }
