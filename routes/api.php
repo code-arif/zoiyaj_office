@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Client\PhotoScanController;
 use App\Http\Controllers\Api\Client\ProfileSetupController;
 use App\Http\Controllers\Api\FollowerController;
 use App\Http\Controllers\Api\Professional\PortfolioController;
+use App\Http\Controllers\Api\Professional\ProfessionalListController;
 use App\Http\Controllers\Api\Professional\ProfessionalProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\User\Auth\AuthenticationController;
@@ -260,4 +261,16 @@ Route::prefix('shop')->group(function () {
     // Reviews
     Route::get('/reviews', [ShopSearchController::class, 'getReviews']);
     Route::get('/reviews/professional/{professionalId}', [ShopSearchController::class, 'getProfessionalReviews']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Profissionl list and details and serarching
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth:api')->group(function () {
+    Route::get('/professionals/list', [ProfessionalListController::class, 'professional_list']);
+    Route::post('/professionals/{professionalId}/toggle-hide', [ProfessionalListController::class, 'toggleHideProfessional']);
+    Route::post('/professionals/{professionalId}/toggle-favourite', [ProfessionalListController::class, 'toggleFavourite']);
+    Route::get('/professionals/favourite/list', [ProfessionalListController::class, 'favouriteList']);
 });

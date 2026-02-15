@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api\User\Auth;
 
-use App\Helper\Helper;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Employee;
@@ -94,7 +94,7 @@ class UserProfileController extends Controller
 
             return $this->success($userData, 'Profile updated successfully.', 200);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Profile update failed: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);

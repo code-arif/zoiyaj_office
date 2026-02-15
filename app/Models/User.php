@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -290,7 +291,6 @@ class User extends Authenticatable implements JWTSubject
     public function clientReviews()
     {
         return $this->hasMany(ServiceReview::class, 'client_id', 'id');
-
     }
 
     // bookmarks
@@ -345,6 +345,35 @@ class User extends Authenticatable implements JWTSubject
         $this->decrement('followers_count');
     }
 
-    /* manage follower system */
+    // hidden professionals
+    public function hiddenProfessionals()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'hidden_professionals',
+            'user_id',
+            'professional_id'
+        )->withTimestamps('hidden_at');
+    }
 
+    public function hiddenByUsers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'hidden_professionals',
+            'professional_id', // swapped
+            'user_id'          // swapped
+        );
+    }
+
+    // favourite professionals
+    public function favouriteProfessionals()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'favourite_professionals',
+            'user_id',
+            'professional_id'
+        )->withPivot('favourited_at')->withTimestamps();
+    }
 }
